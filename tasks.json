@@ -1,0 +1,35 @@
+[
+  {
+    "id": 2,
+    "text": "Configurare GitHub Codespaces",
+    "completed": true
+  },
+  {
+    "id": 1788696381716,
+    "text": "Sono down",
+    "completed": false
+  },
+  {
+    "id": 1788702231278,
+    "text": "Ghh",
+    "completed": false
+  },
+  {
+    "id": 1788729277525,
+    "username": "Jrb170",
+    "text": "Lavoro",
+    "category": "Lavoro",
+    "priority": "Alta",
+    "dueDate": "2026-09-06T23:20",
+    "completed": false
+  },
+  {
+    "id": 1788751139360,
+    "username": "Jrb1700",
+    "text": "Hjj",
+    "category": "Studio",
+    "priority": "Alta",
+    "dueDate": "2026-09-17T05:18",
+    "completed": false
+  }
+]
