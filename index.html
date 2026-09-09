@@ -209,11 +209,19 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- GESTIONE UTENTE ---
-        let myId = localStorage.getItem('anomalia_my_id') || 'user_' + Math.random().toString(36).substring(2, 9);
-        localStorage.setItem('anomalia_my_id', myId);
+        // --- GESTIONE UTENTE (PERSISTENTE SENZA RIGENERAZIONE BOT) ---
+        let myId = localStorage.getItem('anomalia_my_id');
+        if (!myId) {
+            myId = 'user_' + Math.random().toString(36).substring(2, 9);
+            localStorage.setItem('anomalia_my_id', myId);
+        }
 
-        let savedUser = localStorage.getItem('anomalia_username') || '@CosmicDrifter_' + Math.floor(Math.random() * 1000);
+        let savedUser = localStorage.getItem('anomalia_username');
+        if (!savedUser) {
+            savedUser = '@CosmicDrifter_' + Math.floor(Math.random() * 1000);
+            localStorage.setItem('anomalia_username', savedUser);
+        }
+
         let savedAvatar = localStorage.getItem('anomalia_avatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
         
         document.getElementById('username-display').innerText = savedUser;
@@ -234,7 +242,7 @@
 
         // --- LISTA AMICI E MAPPA DOCUMENTI AMICIZIA ---
         let myFriendsIds = [myId]; 
-        let friendDocIds = {}; // Mappa per risalire all'id del documento di amicizia ed eliminarlo
+        let friendDocIds = {}; 
 
         function fetchMyFriends() {
             return Promise.all([
@@ -481,7 +489,7 @@
             zoomContainer.innerHTML = '';
         }
 
-        // --- GESTIONE NETWORK MODAL & AMICIZIA (AGGIUNTA/RIMOZIONE) ---
+        // --- GESTIONE NETWORK MODAL & AMICIZIA (UTENTI REALI E FILTRATI) ---
         const networkModal = document.getElementById('network-modal');
         window.openNetworkModal = function() { networkModal.classList.remove('hidden'); fetchOnlineUsers(); }
         window.closeNetworkModal = function() { networkModal.classList.add('hidden'); }
@@ -522,7 +530,7 @@
                 });
 
                 if(count === 0) {
-                    containerEl.innerHTML = `<p class="text-center text-gray-500 text-[11px] py-6">Nessun altro utente online trovato.</p>`;
+                    containerEl.innerHTML = `<p class="text-center text-gray-500 text-[11px] py-6">Nessun altro utente reale online trovato.</p>`;
                 }
                 document.getElementById('online-count-badge').innerText = `${count + 1} Online`;
                 document.getElementById('modal-online-sub').innerText = `${count + 1} utenti attivi globali`;
