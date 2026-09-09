@@ -61,12 +61,12 @@
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.2 PRO</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.3 PRO</span>
             </div>
-            <!-- Badge Utenti Online -->
+            <!-- Badge Utenti Online Immediato -->
             <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
                 <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                <span id="online-count-badge" class="text-[9px] font-space text-gray-300">Caricamento...</span>
+                <span id="online-count-badge" class="text-[9px] font-space text-gray-300">1 Online</span>
             </div>
         </div>
 
@@ -159,7 +159,7 @@
             </div>
 
             <div id="users-list-container" class="space-y-2 overflow-y-auto flex-grow max-h-60 pr-1 custom-scrollbar">
-                <!-- Caricamento istantaneo senza testi lenti -->
+                <!-- Elenco utenti dinamico -->
             </div>
 
             <button onclick="closeNetworkModal()" class="w-full py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-gray-300 transition">Chiudi</button>
@@ -187,7 +187,7 @@
 
     <footer class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto text-[9px] sm:text-xs text-gray-500 p-1">
         <p>Terra 3D Interattiva.</p>
-        <p class="font-space" id="node-count">Cloud Active</p>
+        <p class="font-space">Cloud Active</p>
     </footer>
 
     <!-- SDK FIREBASE -->
@@ -209,7 +209,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- GESTIONE UTENTE (PERSISTENTE SENZA RIGENERAZIONE BOT) ---
+        // --- GESTIONE UTENTE ---
         let myId = localStorage.getItem('anomalia_my_id');
         if (!myId) {
             myId = 'user_' + Math.random().toString(36).substring(2, 9);
@@ -235,24 +235,23 @@
                 username: savedUser,
                 avatar: savedAvatar,
                 lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
+            }, { merge: true }).then(() => {
+                updateGlobalOnlineCount();
+            });
         }
         updateMyOnlinePresence();
         setInterval(updateMyOnlinePresence, 60000);
 
-        // --- PULIZIA TOTALE FORZATA VECCHI UTENTI ---
-        function wipeUselessUsers() {
+        // --- CONTEGGIO ONLINE IMMEDIATO ALL'AVVIO ---
+        function updateGlobalOnlineCount() {
             db.collection("users").get().then((snapshot) => {
-                snapshot.forEach((doc) => {
-                    if (doc.id !== myId) {
-                        db.collection("users").doc(doc.id).delete();
-                    }
-                });
+                const total = snapshot.size;
+                document.getElementById('online-count-badge').innerText = `${total} Online`;
             });
         }
-        wipeUselessUsers();
+        updateGlobalOnlineCount();
 
-        // --- LISTA AMICI E MAPPA DOCUMENTI AMICIZIA ---
+        // --- LISTA AMICI ---
         let myFriendsIds = [myId]; 
         let friendDocIds = {}; 
 
@@ -407,7 +406,7 @@
               });
         }
 
-        // --- RICEZIONE ANOMALIE FILTRATE PER AMICIZIA ---
+        // --- RICEZIONE ANOMALIE ---
         function loadAnomaliesFeed() {
             db.collection("anomalies")
               .orderBy("timestamp", "desc")
@@ -501,14 +500,14 @@
             zoomContainer.innerHTML = '';
         }
 
-        // --- GESTIONE NETWORK MODAL & AMICIZIA (VELOCE E PULITO) ---
+        // --- GESTIONE NETWORK MODAL & RICERCA UTENTI ---
         const networkModal = document.getElementById('network-modal');
         window.openNetworkModal = function() { networkModal.classList.remove('hidden'); fetchOnlineUsers(); }
         window.closeNetworkModal = function() { networkModal.classList.add('hidden'); }
 
         function fetchOnlineUsers(searchQuery = "") {
             const containerEl = document.getElementById('users-list-container');
-            containerEl.innerHTML = ''; // Nessun testo lento, pulito subito
+            containerEl.innerHTML = '';
 
             db.collection("users").get().then((querySnapshot) => {
                 containerEl.innerHTML = '';
@@ -516,7 +515,10 @@
                 querySnapshot.forEach((doc) => {
                     const userData = doc.data();
                     if(userData.id === myId) return;
-                    if(searchQuery && !userData.username.toLowerCase().includes(searchQuery.toLowerCase())) return;
+                    
+                    const usernameStr = (userData.username || "").toLowerCase();
+                    const queryStr = searchQuery.toLowerCase().trim();
+                    if(queryStr && !usernameStr.includes(queryStr)) return;
 
                     count++;
                     const isAlreadyFriend = myFriendsIds.includes(userData.id);
@@ -542,14 +544,17 @@
                 });
 
                 if(count === 0) {
-                    containerEl.innerHTML = `<p class="text-center text-gray-500 text-[11px] py-6">Nessun utente online trovato.</p>`;
+                    containerEl.innerHTML = `<p class="text-center text-gray-500 text-[11px] py-6">Nessun utente trovato.</p>`;
                 }
-                document.getElementById('online-count-badge').innerText = `${count + 1} Online`;
-                document.getElementById('modal-online-sub').innerText = `${count + 1} utenti attivi globali`;
+                const totalOnline = querySnapshot.size;
+                document.getElementById('online-count-badge').innerText = `${totalOnline} Online`;
+                document.getElementById('modal-online-sub').innerText = `${totalOnline} utenti attivi globali`;
             });
         }
 
-        window.filterCloudUsers = function(query) { fetchOnlineUsers(query); }
+        window.filterCloudUsers = function(query) {
+            fetchOnlineUsers(query);
+        }
 
         window.sendRealRequest = function(targetUserId, targetUsername) {
             db.collection("friend_requests").add({
@@ -561,7 +566,7 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert(`Richiesta inviata a ${targetUsername}!`);
-                fetchOnlineUsers();
+                fetchOnlineUsers(document.getElementById('user-search-input').value);
             });
         }
 
@@ -575,7 +580,7 @@
                         db.collection("friend_requests").doc(doc.id).delete().then(() => {
                             alert("Amicizia rimossa con successo.");
                             fetchMyFriends().then(() => {
-                                fetchOnlineUsers();
+                                fetchOnlineUsers(document.getElementById('user-search-input').value);
                                 loadAnomaliesFeed();
                             });
                         });
