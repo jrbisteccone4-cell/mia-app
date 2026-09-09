@@ -61,7 +61,7 @@
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.0 PRO</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.1 PRO</span>
             </div>
             <!-- Badge Utenti Online -->
             <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
@@ -239,6 +239,20 @@
         }
         updateMyOnlinePresence();
         setInterval(updateMyOnlinePresence, 60000);
+
+        // --- PULIZIA AUTOMATICA UTENTI INUTILI/Fittizi DAL DATABASE ---
+        function cleanUselessUsers() {
+            db.collection("users").get().then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // Se non è il nostro ID e ha nomi generici di prova o non aggiornati, li rimuoviamo dal DB
+                    if (doc.id !== myId && (data.username?.includes('Jrb17') || data.username?.includes('Bisteccone') || !data.lastSeen)) {
+                        db.collection("users").doc(doc.id).delete();
+                    }
+                });
+            });
+        }
+        cleanUselessUsers();
 
         // --- LISTA AMICI E MAPPA DOCUMENTI AMICIZIA ---
         let myFriendsIds = [myId]; 
@@ -489,7 +503,7 @@
             zoomContainer.innerHTML = '';
         }
 
-        // --- GESTIONE NETWORK MODAL & AMICIZIA (UTENTI REALI E FILTRATI) ---
+        // --- GESTIONE NETWORK MODAL & AMICIZIA (UTENTI REALI E RIMOZIONE) ---
         const networkModal = document.getElementById('network-modal');
         window.openNetworkModal = function() { networkModal.classList.remove('hidden'); fetchOnlineUsers(); }
         window.closeNetworkModal = function() { networkModal.classList.add('hidden'); }
@@ -504,6 +518,8 @@
                 querySnapshot.forEach((doc) => {
                     const userData = doc.data();
                     if(userData.id === myId) return;
+                    // Filtra eventuali residui di vecchi bot indesiderati
+                    if(userData.username?.includes('Jrb17') || userData.username?.includes('Bisteccone')) return;
                     if(searchQuery && !userData.username.toLowerCase().includes(searchQuery.toLowerCase())) return;
 
                     count++;
@@ -549,6 +565,7 @@
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert(`Richiesta d'amicizia inviata a ${targetUsername}!`);
+                fetchOnlineUsers();
             });
         }
 
@@ -568,7 +585,23 @@
                     alert("Errore durante la rimozione dell'amicizia.");
                 });
             } else {
-                alert("Errore: relazione non trovata.");
+                // Ricerca di sicurezza se il docId non era mappato al volo
+                db.collection("friend_requests")
+                  .where("status", "==", "accepted")
+                  .get().then((snapshot) => {
+                      snapshot.forEach((doc) => {
+                          const d = doc.data();
+                          if((d.fromId === myId && d.toId === targetUserId) || (d.fromId === targetUserId && d.toId === myId)) {
+                              db.collection("friend_requests").doc(doc.id).delete().then(() => {
+                                  alert("Amicizia rimossa con successo.");
+                                  fetchMyFriends().then(() => {
+                                      fetchOnlineUsers();
+                                      loadAnomaliesFeed();
+                                  });
+                              });
+                          }
+                      });
+                  });
             }
         }
 
