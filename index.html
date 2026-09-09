@@ -61,7 +61,7 @@
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.3 PRO</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.4 PRO</span>
             </div>
             <!-- Badge Utenti Online Immediato -->
             <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
@@ -229,6 +229,7 @@
         document.getElementById('modal-username-input').value = savedUser;
         document.getElementById('modal-avatar-input').value = savedAvatar;
 
+        // Registrazione immediata nel cloud non appena si apre il link/pagina
         function updateMyOnlinePresence() {
             db.collection("users").doc(myId).set({
                 id: myId,
@@ -240,7 +241,7 @@
             });
         }
         updateMyOnlinePresence();
-        setInterval(updateMyOnlinePresence, 60000);
+        setInterval(updateMyOnlinePresence, 30000);
 
         // --- CONTEGGIO ONLINE IMMEDIATO ALL'AVVIO ---
         function updateGlobalOnlineCount() {
@@ -251,24 +252,38 @@
         }
         updateGlobalOnlineCount();
 
-        // --- LISTA AMICI ---
+        // --- LISTA AMICI & RICHIESTE ---
         let myFriendsIds = [myId]; 
         let friendDocIds = {}; 
+        let pendingRequestsMap = {}; // Memorizza le richieste pendenti (incoming e outgoing)
 
         function fetchMyFriends() {
             return Promise.all([
-                db.collection("friend_requests").where("toId", "==", myId).where("status", "==", "accepted").get(),
-                db.collection("friend_requests").where("fromId", "==", myId).where("status", "==", "accepted").get()
+                db.collection("friend_requests").where("toId", "==", myId).get(),
+                db.collection("friend_requests").where("fromId", "==", myId).get()
             ]).then(([snapshotTo, snapshotFrom]) => {
                 myFriendsIds = [myId];
                 friendDocIds = {};
+                pendingRequestsMap = {};
+
                 snapshotTo.forEach(doc => { 
-                    myFriendsIds.push(doc.data().fromId); 
-                    friendDocIds[doc.data().fromId] = doc.id;
+                    const data = doc.data();
+                    if (data.status === "accepted") {
+                        myFriendsIds.push(data.fromId); 
+                        friendDocIds[data.fromId] = doc.id;
+                    } else if (data.status === "pending") {
+                        pendingRequestsMap[data.fromId] = { reqId: doc.id, type: 'incoming' };
+                    }
                 });
+
                 snapshotFrom.forEach(doc => { 
-                    myFriendsIds.push(doc.data().toId); 
-                    friendDocIds[doc.data().toId] = doc.id;
+                    const data = doc.data();
+                    if (data.status === "accepted") {
+                        myFriendsIds.push(data.toId); 
+                        friendDocIds[data.toId] = doc.id;
+                    } else if (data.status === "pending") {
+                        pendingRequestsMap[data.toId] = { reqId: doc.id, type: 'outgoing' };
+                    }
                 });
             });
         }
@@ -362,7 +377,7 @@
         }
         animate();
 
-        // --- ASCOLTO RICHIESTE AMICIZIA ---
+        // --- ASCOLTO RICHIESTE AMICIZIA IN TEMPO REALE ---
         const liveNotifsContainer = document.getElementById('live-notifications-container');
 
         db.collection("friend_requests")
@@ -391,7 +406,7 @@
                 <p class="text-[11px] text-white"><b>${fromName}</b> vuole aggiungerti agli amici.</p>
                 <div class="flex space-x-2 pt-1">
                     <button onclick="acceptFriendRequest('${reqId}', '${notifId}')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-[10px] font-space text-white uppercase">Accetta</button>
-                    <button onclick="dismissItem('${notifId}')" class="py-1.5 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-[10px] text-gray-300">Rifiuta</button>
+                    <button onclick="rejectFriendRequest('${reqId}', '${notifId}')" class="py-1.5 px-3 bg-rose-600/80 hover:bg-rose-600 rounded-lg text-[10px] font-space text-white uppercase">Rifiuta</button>
                 </div>
             `;
             liveNotifsContainer.prepend(div);
@@ -401,8 +416,25 @@
             db.collection("friend_requests").doc(reqId).update({ status: "accepted" })
               .then(() => {
                   alert("Richiesta d'amicizia accettata!");
-                  dismissItem(divId);
-                  fetchMyFriends().then(() => loadAnomaliesFeed());
+                  if(divId) dismissItem(divId);
+                  fetchMyFriends().then(() => {
+                      loadAnomaliesFeed();
+                      if(!document.getElementById('network-modal').classList.contains('hidden')) {
+                          fetchOnlineUsers(document.getElementById('user-search-input').value);
+                      }
+                  });
+              });
+        }
+
+        window.rejectFriendRequest = function(reqId, divId) {
+            db.collection("friend_requests").doc(reqId).delete()
+              .then(() => {
+                  if(divId) dismissItem(divId);
+                  fetchMyFriends().then(() => {
+                      if(!document.getElementById('network-modal').classList.contains('hidden')) {
+                          fetchOnlineUsers(document.getElementById('user-search-input').value);
+                      }
+                  });
               });
         }
 
@@ -500,9 +532,12 @@
             zoomContainer.innerHTML = '';
         }
 
-        // --- GESTIONE NETWORK MODAL & RICERCA UTENTI ---
+        // --- GESTIONE NETWORK MODAL & UTENTI REALI ---
         const networkModal = document.getElementById('network-modal');
-        window.openNetworkModal = function() { networkModal.classList.remove('hidden'); fetchOnlineUsers(); }
+        window.openNetworkModal = function() { 
+            networkModal.classList.remove('hidden'); 
+            fetchMyFriends().then(() => fetchOnlineUsers()); 
+        }
         window.closeNetworkModal = function() { networkModal.classList.add('hidden'); }
 
         function fetchOnlineUsers(searchQuery = "") {
@@ -522,10 +557,21 @@
 
                     count++;
                     const isAlreadyFriend = myFriendsIds.includes(userData.id);
+                    const pendingInfo = pendingRequestsMap[userData.id];
 
                     let actionBtnHtml = '';
                     if (isAlreadyFriend) {
-                        actionBtnHtml = `<button onclick="removeFriend('${userData.id}', '${userData.username}')" class="px-2.5 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/80 hover:bg-rose-600 text-white transition">- Rimuovi</button>`;
+                        // Se accetto la richiesta o sono amici, esce vicino ad "amici" la possibilità di eliminare/rimuovere
+                        actionBtnHtml = `<button onclick="removeFriend('${userData.id}', '${userData.username}')" class="px-2.5 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/80 hover:bg-rose-600 text-white transition">- Elimina</button>`;
+                    } else if (pendingInfo && pendingInfo.type === 'incoming') {
+                        // Se c'è una richiesta in arrivo, mostra accetta e rifiuta vicino
+                        actionBtnHtml = `
+                            <div class="flex space-x-1">
+                                <button onclick="acceptFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-emerald-600 hover:bg-emerald-500 text-white transition">Accetta</button>
+                                <button onclick="rejectFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/80 hover:bg-rose-600 text-white transition">Rifiuta</button>
+                            </div>`;
+                    } else if (pendingInfo && pendingInfo.type === 'outgoing') {
+                        actionBtnHtml = `<span class="text-[9px] text-amber-400 font-space uppercase px-2 py-1">In attesa</span>`;
                     } else {
                         actionBtnHtml = `<button onclick="sendRealRequest('${userData.id}', '${userData.username}')" class="px-3 py-1.5 rounded-lg text-[10px] font-space uppercase bg-indigo-600 hover:bg-indigo-500 text-white transition">+ Amicizia</button>`;
                     }
@@ -565,8 +611,9 @@
                 status: "pending",
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert(`Richiesta inviata a ${targetUsername}!`);
-                fetchOnlineUsers(document.getElementById('user-search-input').value);
+                fetchMyFriends().then(() => {
+                    fetchOnlineUsers(document.getElementById('user-search-input').value);
+                });
             });
         }
 
@@ -578,7 +625,6 @@
                     const d = doc.data();
                     if((d.fromId === myId && d.toId === targetUserId) || (d.fromId === targetUserId && d.toId === myId)) {
                         db.collection("friend_requests").doc(doc.id).delete().then(() => {
-                            alert("Amicizia rimossa con successo.");
                             fetchMyFriends().then(() => {
                                 fetchOnlineUsers(document.getElementById('user-search-input').value);
                                 loadAnomaliesFeed();
