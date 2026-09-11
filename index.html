@@ -83,7 +83,7 @@
         <div class="flex items-center space-x-2 sm:space-x-3">
             <div class="hidden md:flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v7.0</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v7.1</span>
             </div>
             <div onclick="playUiClick(); openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
                 <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
@@ -569,6 +569,7 @@
         const pinsGroup = new THREE.Group();
         earthGroup.add(pinsGroup);
 
+        // Modifica: aggiungiamo un timer di scadenza (es. 180 secondi = 3 minuti) per ogni pin sul globo
         function addPinToGlobe(lat, lon, color = 0x6366f1) {
             const phi = (90 - lat) * (Math.PI / 180);
             const theta = (lon + 180) * (Math.PI / 180);
@@ -582,6 +583,10 @@
             const pinMat = new THREE.MeshBasicMaterial({ color: color });
             const pinMesh = new THREE.Mesh(pinGeo, pinMat);
             pinMesh.position.copy(pos);
+            
+            // Salviamo il tempo di creazione per rimuoverlo dopo 3 minuti (180000 millisecondi)
+            pinMesh.userData = { createdAt: Date.now(), maxAge: 180000 };
+            
             pinsGroup.add(pinMesh);
         }
 
@@ -636,6 +641,19 @@
             earthGroup.rotation.y += 0.0008;
             if(cloudsMesh.visible) {
                 cloudsMesh.rotation.y += 0.001;
+            }
+
+            // Controllo ed eliminazione automatica dei pin scaduti dopo 3 minuti
+            const now = Date.now();
+            for (let i = pinsGroup.children.length - 1; i >= 0; i--) {
+                const pin = pinsGroup.children[i];
+                if (pin.userData && pin.userData.createdAt) {
+                    if (now - pin.userData.createdAt > pin.userData.maxAge) {
+                        pinsGroup.remove(pin);
+                        pin.geometry.dispose();
+                        if (pin.material.dispose) pin.material.dispose();
+                    }
+                }
             }
 
             const positions = starsGeometry.attributes.position.array;
