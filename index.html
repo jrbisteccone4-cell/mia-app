@@ -67,7 +67,7 @@
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.6 PRO</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.7 PRO</span>
             </div>
             <!-- Badge Utenti Online Immediato -->
             <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
@@ -111,7 +111,7 @@
 
             <div>
                 <label class="text-[9px] text-gray-400 uppercase block mb-1">Allega Immagine o Video Breve</label>
-                <input type="text" id="anomaly-media-url" class="glass-input w-full p-2 rounded-xl text-xs text-white mb-2" placeholder="Incolla link immagine/video (opzionale)...">
+                <input type="text" id="anomaly-media-url" class="glass-input w-full p-2 rounded-xl text-xs text-white mb-2 hidden" placeholder="Incolla link...">
                 <input type="file" id="anomaly-file-input" accept="image/*,video/*" class="text-[10px] text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-space file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 w-full">
             </div>
 
@@ -168,20 +168,28 @@
         </div>
     </div>
 
-    <!-- MODALE PROFILO -->
+    <!-- MODALE PROFILO CON SELETTORE FOTO GALLERIA -->
     <div id="profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-3">
             <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Modifica Profilo</h3>
+            
+            <div class="flex flex-col items-center justify-center space-y-2 py-2">
+                <div class="w-16 h-16 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/50 shadow-lg">
+                    <img id="modal-avatar-preview-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-full h-full object-cover">
+                </div>
+                <label class="text-[10px] text-indigo-400 font-space uppercase cursor-pointer bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 transition">
+                    📁 Cambia Foto Profilo
+                    <input type="file" id="profile-file-input" accept="image/*" class="hidden" onchange="previewProfileImage(this)">
+                </label>
+            </div>
+
             <div>
                 <label class="text-[9px] text-gray-400 uppercase">Username</label>
                 <input type="text" id="modal-username-input" class="glass-input w-full p-2 rounded-xl text-xs text-white mt-1" value="@CosmicDrifter">
             </div>
-            <div>
-                <label class="text-[9px] text-gray-400 uppercase">Link Immagine Profilo (URL)</label>
-                <input type="text" id="modal-avatar-input" class="glass-input w-full p-2 rounded-xl text-xs text-white mt-1" placeholder="https://...">
-            </div>
+
             <div class="flex space-x-2 pt-2">
-                <button onclick="saveProfile()" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-[11px] font-space uppercase tracking-wider text-white transition">Salva</button>
+                <button onclick="saveProfile()" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-[11px] font-space uppercase tracking-wider text-white transition">Salva Profilo</button>
                 <button onclick="closeProfileModal()" class="py-2 px-4 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-gray-300 transition">Chiudi</button>
             </div>
         </div>
@@ -229,7 +237,7 @@
         document.getElementById('username-display').innerText = savedUser;
         document.getElementById('user-avatar-preview').src = savedAvatar;
         document.getElementById('modal-username-input').value = savedUser;
-        document.getElementById('modal-avatar-input').value = savedAvatar;
+        document.getElementById('modal-avatar-preview-img').src = savedAvatar;
 
         function updateMyOnlinePresence() {
             if(!savedUser || savedUser.trim() === "") return;
@@ -341,13 +349,11 @@
         scene.add(earthGroup);
         const globeRadius = 1;
 
-        // Caricamento Texture Reali della Terra tramite Three.js TextureLoader
         const textureLoader = new THREE.TextureLoader();
         const earthTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg');
         const bumpTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg');
         const specularTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg');
 
-        // Mesh del Globo Reale
         const earthMesh = new THREE.Mesh(
             new THREE.SphereGeometry(globeRadius, 64, 64),
             new THREE.MeshStandardMaterial({
@@ -361,7 +367,6 @@
         );
         earthGroup.add(earthMesh);
 
-        // Strato Atmosferico Nuvole Luminose
         const cloudsTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png');
         const cloudsMesh = new THREE.Mesh(
             new THREE.SphereGeometry(globeRadius * 1.015, 64, 64),
@@ -592,10 +597,14 @@
                         actionBtnHtml = `<button onclick="sendRealRequest('${userData.id}', '${userData.username}')" class="px-3 py-1.5 rounded-lg text-[10px] font-space uppercase bg-indigo-600 hover:bg-indigo-500 text-white transition">+ Amicizia</button>`;
                     }
 
+                    const avatarSrc = userData.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
+
                     containerEl.innerHTML += `
                         <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10">
                             <div class="flex items-center space-x-2.5">
-                                <img src="${userData.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'}" class="w-8 h-8 rounded-full object-cover">
+                                <div class="w-9 h-9 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0 cursor-pointer group relative" onclick="openMediaZoom('image', '${avatarSrc}')" title="Tocca per ingrandire foto">
+                                    <img src="${avatarSrc}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                                </div>
                                 <div class="text-left">
                                     <div class="text-xs font-space text-white">${userData.username}</div>
                                     <div class="text-[9px] ${isAlreadyFriend ? 'text-indigo-400' : 'text-emerald-400'}">${isAlreadyFriend ? 'Amico Confermato' : 'Online nel Cloud'}</div>
@@ -661,6 +670,16 @@
         window.openProfileModal = function() { profileModal.classList.remove('hidden'); }
         window.closeProfileModal = function() { profileModal.classList.add('hidden'); }
 
+        let tempNewAvatarBase64 = null;
+
+        window.previewProfileImage = async function(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                tempNewAvatarBase64 = await compressImage(file, 400, 0.7);
+                document.getElementById('modal-avatar-preview-img').src = tempNewAvatarBase64;
+            }
+        }
+
         window.saveProfile = function() {
             let rawName = document.getElementById('modal-username-input').value.trim();
             if(rawName) {
@@ -669,17 +688,17 @@
                 localStorage.setItem('anomalia_username', savedUser);
                 document.getElementById('username-display').innerText = savedUser;
             }
-            let rawAvatar = document.getElementById('modal-avatar-input').value.trim();
-            if(rawAvatar) {
-                savedAvatar = rawAvatar;
+            if(tempNewAvatarBase64) {
+                savedAvatar = tempNewAvatarBase64;
                 localStorage.setItem('anomalia_avatar', savedAvatar);
                 document.getElementById('user-avatar-preview').src = savedAvatar;
+                tempNewAvatarBase64 = null;
             }
             updateMyOnlinePresence();
             closeProfileModal();
         }
 
-        function compressImage(file) {
+        function compressImage(file, maxDim = 900, quality = 0.75) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -687,13 +706,12 @@
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
                         let width = img.width, height = img.height;
-                        const maxDim = 900;
                         if (width > height && width > maxDim) { height *= maxDim / width; width = maxDim; }
                         else if (height > maxDim) { width *= maxDim / height; height = maxDim; }
                         canvas.width = width; canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.75));
+                        resolve(canvas.toDataURL('image/jpeg', quality));
                     };
                     img.src = e.target.result;
                 };
@@ -722,7 +740,7 @@
                 submitBtn.innerText = "OTTIMIZZAZIONE IN CORSO...";
                 try {
                     if (fileInput.type.startsWith('image/')) {
-                        finalMediaUrl = await compressImage(fileInput);
+                        finalMediaUrl = await compressImage(fileInput, 900, 0.75);
                     } else {
                         if(fileInput.size > 8 * 1024 * 1024) {
                             alert("Il video è troppo pesante. Scegli un video più corto.");
