@@ -53,23 +53,6 @@
         .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 4px; }
-
-        /* Etichette 3D delle Nazioni sul Globo */
-        .country-label {
-            color: #00ffcc;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 2px 5px;
-            background: rgba(0, 0, 0, 0.75);
-            border: 1px solid rgba(0, 255, 204, 0.4);
-            border-radius: 4px;
-            white-space: nowrap;
-            pointer-events: none;
-            user-select: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.8);
-            letter-spacing: 0.5px;
-        }
     </style>
 </head>
 <body class="flex flex-col justify-between p-3 sm:p-6 h-full w-full">
@@ -210,11 +193,11 @@
     </div>
 
     <footer class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto text-[9px] sm:text-xs text-gray-500 p-1">
-        <p>Globo 3D interattivo con Nazioni & Spazio.</p>
+        <p>Globo 3D interattivo con Spazio.</p>
         <p class="font-space">Cloud Active</p>
     </footer>
 
-    <!-- IMPORT MAPS PER THREE.JS E RENDERER CSS2D -->
+    <!-- IMPORT MAPS PER THREE.JS -->
     <script type="importmap">
         {
             "imports": {
@@ -231,7 +214,6 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
         // --- CONFIGURAZIONE FIREBASE ---
         const firebaseConfig = {
@@ -352,7 +334,7 @@
             if(el) el.remove();
         }
 
-        // --- THREE.JS GLOBE SETUP CON FOTOREALISMO, NAZIONI E SPAZIO STELLATO ---
+        // --- THREE.JS GLOBE SETUP CON FOTOREALISMO E SPAZIO STELLATO (SENZA NAZIONI) ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
 
@@ -364,20 +346,12 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Renderer CSS2D per le etichette delle nazioni in 3D
-        const labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        labelRenderer.domElement.style.position = 'absolute';
-        labelRenderer.domElement.style.top = '0px';
-        labelRenderer.domElement.style.pointerEvents = 'none';
-        container.appendChild(labelRenderer.domElement);
-
         // Controlli di rotazione e zoom fluido avanzato
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.minDistance = 4.3; // Zoom massimo in avvicinamento per vedere dettagli e nazioni
-        controls.maxDistance = 25;  // Zoom massimo in allontanamento
+        controls.minDistance = 4.3;
+        controls.maxDistance = 25;
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
@@ -417,41 +391,6 @@
             })
         );
         earthGroup.add(cloudsMesh);
-
-        // Conversione coordinate geografiche (Lat, Lon) in coordinate 3D spaziali sul globo
-        function latLonToVector3(lat, lon, radius) {
-            const phi = (90 - lat) * (Math.PI / 180);
-            const theta = (lon + 180) * (Math.PI / 180);
-            const x = -(radius * Math.sin(phi) * Math.cos(theta));
-            const z = (radius * Math.sin(phi) * Math.sin(theta));
-            const y = (radius * Math.cos(phi));
-            return new THREE.Vector3(x, y, z);
-        }
-
-        // Posizionamento Nazioni nel Globo 3D
-        const nationsData = [
-            { name: "Italia", lat: 41.9, lon: 12.5 },
-            { name: "Francia", lat: 46.2, lon: 2.2 },
-            { name: "Stati Uniti", lat: 37.0, lon: -95.7 },
-            { name: "Brasile", lat: -14.2, lon: -51.9 },
-            { name: "Cina", lat: 35.8, lon: 104.1 },
-            { name: "Giappone", lat: 36.2, lon: 138.2 },
-            { name: "Australia", lat: -25.2, lon: 133.7 },
-            { name: "Sud Africa", lat: -30.5, lon: 22.9 },
-            { name: "Regno Unito", lat: 55.3, lon: -3.4 },
-            { name: "India", lat: 20.5, lon: 78.9 }
-        ];
-
-        nationsData.forEach(nation => {
-            const div = document.createElement('div');
-            div.className = 'country-label';
-            div.textContent = nation.name;
-
-            const label = new CSS2DObject(div);
-            const pos = latLonToVector3(nation.lat, nation.lon, globeRadius + 0.04);
-            label.position.copy(pos);
-            earthGroup.add(label);
-        });
 
         // Spazio Stellato Tridimensionale in Movimento (Sfondo Esterno)
         const starsCount = 2000;
@@ -504,18 +443,15 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            labelRenderer.setSize(window.innerWidth, window.innerHeight);
         });
 
         // Loop di Animazione Principale
         function animate() {
             requestAnimationFrame(animate);
             
-            // Rotazione autonoma lenta del globo e delle nuvole
             earthGroup.rotation.y += 0.0008;
             cloudsMesh.rotation.y += 0.001;
 
-            // Animazione tridimensionale dinamica del campo di stelle nello spazio esterno
             const positions = starsGeometry.attributes.position.array;
             for (let i = 0; i < starsCount; i++) {
                 let x = positions[i * 3];
@@ -531,7 +467,6 @@
 
             controls.update();
             renderer.render(scene, camera);
-            labelRenderer.render(scene, camera);
         }
         animate();
 
@@ -708,7 +643,7 @@
                     
                     if(!userData.username || !userData.lastSeen) return;
                     const lastSeenTime = userData.lastSeen.toDate().getTime();
-                    if((now - lastSeenTime) > 60000) return; // Filtro Anti-Ghost 60s
+                    if((now - lastSeenTime) > 60000) return;
 
                     const usernameStr = userData.username.toLowerCase();
                     const queryStr = searchQuery.toLowerCase().trim();
