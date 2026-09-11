@@ -61,7 +61,7 @@
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.5 PRO</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.6 PRO</span>
             </div>
             <!-- Badge Utenti Online Immediato -->
             <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
@@ -137,9 +137,7 @@
     <!-- MODALE FULLSCREEN PER ZOOM IMMAGINI / VIDEO -->
     <div id="media-zoom-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex flex-col items-center justify-center p-2">
         <button onclick="closeMediaZoom()" class="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full z-50 text-sm font-bold w-10 h-10 flex items-center justify-center">✕</button>
-        <div id="zoom-content-container" class="w-full h-full flex items-center justify-center p-2 overflow-auto">
-            <!-- Inserito dinamicamente -->
-        </div>
+        <div id="zoom-content-container" class="w-full h-full flex items-center justify-center p-2 overflow-auto"></div>
     </div>
 
     <!-- MODALE NETWORK & UTENTI REALI -->
@@ -158,9 +156,7 @@
                 <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
 
-            <div id="users-list-container" class="space-y-2 overflow-y-auto flex-grow max-h-60 pr-1 custom-scrollbar">
-                <!-- Elenco utenti dinamico -->
-            </div>
+            <div id="users-list-container" class="space-y-2 overflow-y-auto flex-grow max-h-60 pr-1 custom-scrollbar"></div>
 
             <button onclick="closeNetworkModal()" class="w-full py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-gray-300 transition">Chiudi</button>
         </div>
@@ -186,7 +182,7 @@
     </div>
 
     <footer class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto text-[9px] sm:text-xs text-gray-500 p-1">
-        <p>Terra 3D Interattiva.</p>
+        <p>Terra 3D Fotorealistica.</p>
         <p class="font-space">Cloud Active</p>
     </footer>
 
@@ -229,7 +225,6 @@
         document.getElementById('modal-username-input').value = savedUser;
         document.getElementById('modal-avatar-input').value = savedAvatar;
 
-        // Registrazione immediata nel cloud all'apertura del link
         function updateMyOnlinePresence() {
             if(!savedUser || savedUser.trim() === "") return;
             db.collection("users").doc(myId).set({
@@ -242,9 +237,8 @@
             });
         }
         updateMyOnlinePresence();
-        setInterval(updateMyOnlinePresence, 20000); // Aggiorna ogni 20 secondi
+        setInterval(updateMyOnlinePresence, 20000);
 
-        // --- CONTEGGIO ONLINE REALE (Filtro 60 secondi per eliminare i fantasmi) ---
         function updateGlobalOnlineCount() {
             db.collection("users").get().then((snapshot) => {
                 const now = new Date().getTime();
@@ -253,13 +247,12 @@
                     const data = doc.data();
                     if(data.lastSeen && data.username) {
                         const lastSeenTime = data.lastSeen.toDate().getTime();
-                        // Se l'utente ha inviato un segnale negli ultimi 60 secondi ed ha un username valido
                         if((now - lastSeenTime) < 60000) {
                             activeCount++;
                         }
                     }
                 });
-                if(activeCount === 0) activeCount = 1; // Almeno se stesso
+                if(activeCount === 0) activeCount = 1;
                 document.getElementById('online-count-badge').innerText = `${activeCount} Online`;
             });
         }
@@ -303,13 +296,8 @@
         }
         fetchMyFriends();
 
-        // --- GESTIONE ELEMENTI NASCOSTI ---
         function getDismissedItems() {
-            try {
-                return JSON.parse(localStorage.getItem('anomalia_dismissed') || '[]');
-            } catch(e) {
-                return [];
-            }
+            try { return JSON.parse(localStorage.getItem('anomalia_dismissed') || '[]'); } catch(e) { return []; }
         }
 
         function dismissItem(itemId) {
@@ -322,7 +310,7 @@
             if(el) el.remove();
         }
 
-        // --- THREE.JS GLOBE SETUP ---
+        // --- THREE.JS GLOBE SETUP CON MONDO FOTOREALISTICO ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -338,8 +326,8 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
         sunLight.position.set(6, 3, 5);
         scene.add(sunLight);
 
@@ -347,32 +335,38 @@
         scene.add(earthGroup);
         const globeRadius = 1;
 
-        function createRealEarthMap() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 2048; canvas.height = 1024;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#02040a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            let g1 = ctx.createRadialGradient(450, 400, 20, 450, 400, 300);
-            g1.addColorStop(0, '#1e293b'); g1.addColorStop(1, '#080c14');
-            ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(450, 400, 260, 0, Math.PI * 2); ctx.fill();
-            let g2 = ctx.createRadialGradient(1080, 380, 20, 1080, 380, 320);
-            g2.addColorStop(0, '#334155'); g2.addColorStop(0.6, '#1e293b'); g2.addColorStop(1, '#060911');
-            ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(1080, 380, 300, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#38bdf8';
-            for (let i = 0; i < 600; i++) {
-                ctx.fillRect(Math.random() * canvas.width, 150 + Math.random() * 720, 1.2, 1.2);
-            }
-            return new THREE.CanvasTexture(canvas);
-        }
+        // Caricamento Texture Reali della Terra tramite Three.js TextureLoader
+        const textureLoader = new THREE.TextureLoader();
+        const earthTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg');
+        const bumpTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg');
+        const specularTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg');
 
-        earthGroup.add(new THREE.Mesh(
+        // Mesh del Globo Reale
+        const earthMesh = new THREE.Mesh(
             new THREE.SphereGeometry(globeRadius, 64, 64),
-            new THREE.MeshStandardMaterial({ map: createRealEarthMap(), roughness: 0.65, metalness: 0.2 })
-        ));
-        earthGroup.add(new THREE.Mesh(
-            new THREE.SphereGeometry(globeRadius * 1.05, 64, 64),
-            new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending })
-        ));
+            new THREE.MeshStandardMaterial({
+                map: earthTexture,
+                bumpMap: bumpTexture,
+                bumpScale: 0.04,
+                roughnessMap: specularTexture,
+                roughness: 0.5,
+                metalness: 0.1
+            })
+        );
+        earthGroup.add(earthMesh);
+
+        // Strato Atmosferico Nuvole Luminose
+        const cloudsTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png');
+        const cloudsMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(globeRadius * 1.015, 64, 64),
+            new THREE.MeshStandardMaterial({
+                map: cloudsTexture,
+                transparent: true,
+                opacity: 0.4,
+                blending: THREE.AdditiveBlending
+            })
+        );
+        earthGroup.add(cloudsMesh);
 
         let isDragging = false, previousMousePosition = { x: 0, y: 0 };
         window.addEventListener('pointerdown', (e) => { if (!e.target.closest('.interactive-ui')) { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; } });
@@ -386,7 +380,10 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            if (!isDragging) earthGroup.rotation.y += 0.0015;
+            if (!isDragging) {
+                earthGroup.rotation.y += 0.001;
+                cloudsMesh.rotation.y += 0.0012; // Le nuvole ruotano leggermente più veloce per realismo
+            }
             renderer.render(scene, camera);
         }
         animate();
@@ -508,10 +505,7 @@
                     }
                 });
 
-                mediaHtml = `
-                    <div class="flex space-x-2 overflow-x-auto py-1 custom-scrollbar w-full">
-                        ${itemsList}
-                    </div>`;
+                mediaHtml = `<div class="flex space-x-2 overflow-x-auto py-1 custom-scrollbar w-full">${itemsList}</div>`;
             }
 
             div.innerHTML = `
@@ -526,7 +520,6 @@
             liveNotifsContainer.appendChild(div);
         }
 
-        // --- ZOOM MODALE FULLSCREEN ---
         const zoomModal = document.getElementById('media-zoom-modal');
         const zoomContainer = document.getElementById('zoom-content-container');
 
@@ -566,10 +559,9 @@
                     const userData = doc.data();
                     if(userData.id === myId) return;
                     
-                    // Salta utenti senza username o inattivi da più di 60 secondi (fantasmi)
                     if(!userData.username || !userData.lastSeen) return;
                     const lastSeenTime = userData.lastSeen.toDate().getTime();
-                    if((now - lastSeenTime) > 60000) return;
+                    if((now - lastSeenTime) > 60000) return; // Filtro Anti-Ghost 60s
 
                     const usernameStr = userData.username.toLowerCase();
                     const queryStr = searchQuery.toLowerCase().trim();
@@ -581,10 +573,8 @@
 
                     let actionBtnHtml = '';
                     if (isAlreadyFriend) {
-                        // Se sono amici, mostra il pulsante - Elimina
                         actionBtnHtml = `<button onclick="removeFriend('${userData.id}', '${userData.username}')" class="px-2.5 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/80 hover:bg-rose-600 text-white transition">- Elimina</button>`;
                     } else if (pendingInfo && pendingInfo.type === 'incoming') {
-                        // Se c'è una richiesta in arrivo, mostra Accetta e Rifiuta vicini
                         actionBtnHtml = `
                             <div class="flex space-x-1">
                                 <button onclick="acceptFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-emerald-600 hover:bg-emerald-500 text-white transition">Accetta</button>
@@ -593,7 +583,6 @@
                     } else if (pendingInfo && pendingInfo.type === 'outgoing') {
                         actionBtnHtml = `<span class="text-[9px] text-amber-400 font-space uppercase px-2 py-1">In attesa</span>`;
                     } else {
-                        // Utente globale pronto per essere aggiunto agli amici
                         actionBtnHtml = `<button onclick="sendRealRequest('${userData.id}', '${userData.username}')" class="px-3 py-1.5 rounded-lg text-[10px] font-space uppercase bg-indigo-600 hover:bg-indigo-500 text-white transition">+ Amicizia</button>`;
                     }
 
@@ -618,9 +607,7 @@
             });
         }
 
-        window.filterCloudUsers = function(query) {
-            fetchOnlineUsers(query);
-        }
+        window.filterCloudUsers = function(query) { fetchOnlineUsers(query); }
 
         window.sendRealRequest = function(targetUserId, targetUsername) {
             db.collection("friend_requests").add({
@@ -631,15 +618,12 @@
                 status: "pending",
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                fetchMyFriends().then(() => {
-                    fetchOnlineUsers(document.getElementById('user-search-input').value);
-                });
+                fetchMyFriends().then(() => { fetchOnlineUsers(document.getElementById('user-search-input').value); });
             });
         }
 
         window.removeFriend = function(targetUserId, targetUsername) {
             if(!confirm(`Vuoi rimuovere l'amicizia con ${targetUsername}?`)) return;
-
             db.collection("friend_requests").get().then((snapshot) => {
                 snapshot.forEach((doc) => {
                     const d = doc.data();
@@ -696,14 +680,10 @@
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
+                        let width = img.width, height = img.height;
                         const maxDim = 900;
-                        if (width > height && width > maxDim) {
-                            height *= maxDim / width; width = maxDim;
-                        } else if (height > maxDim) {
-                            width *= maxDim / height; height = maxDim;
-                        }
+                        if (width > height && width > maxDim) { height *= maxDim / width; width = maxDim; }
+                        else if (height > maxDim) { width *= maxDim / height; height = maxDim; }
                         canvas.width = width; canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
@@ -728,14 +708,12 @@
             if(!textValue) { alert("Inserisci una descrizione per l'anomalia."); return; }
 
             const visibilityChoice = document.querySelector('input[name="visibility-type"]:checked').value;
-
             let finalMediaUrl = anomalyMediaUrl.value.trim();
             const fileInput = anomalyFileInput.files[0];
 
             if (fileInput) {
                 submitBtn.disabled = true;
                 submitBtn.innerText = "OTTIMIZZAZIONE IN CORSO...";
-
                 try {
                     if (fileInput.type.startsWith('image/')) {
                         finalMediaUrl = await compressImage(fileInput);
@@ -775,7 +753,7 @@
                 anomalyFileInput.value = '';
                 submitBtn.innerText = "TRASMETTI NEL GLOBO LIVE";
                 submitBtn.disabled = false;
-            }).catch((err) => {
+            }).catch(() => {
                 alert("Errore di registrazione nel database.");
                 submitBtn.innerText = "TRASMETTI NEL GLOBO LIVE";
                 submitBtn.disabled = false;
