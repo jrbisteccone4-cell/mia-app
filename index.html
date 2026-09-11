@@ -22,7 +22,6 @@
             overflow: hidden; position: fixed;
             user-select: none; -webkit-user-select: none;
         }
-        /* Impedisce l'ingrandimento automatico di iOS/Android sui campi di testo */
         input, textarea, select {
             font-size: 16px !important;
         }
@@ -83,7 +82,7 @@
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v6.3 PRO X</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v6.4 GPS PRO</span>
             </div>
             <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
                 <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
@@ -102,7 +101,7 @@
                 </div>
                 <div class="text-left leading-tight truncate max-w-[100px] sm:max-w-xs">
                     <div id="username-display" class="text-[11px] font-space font-medium text-white truncate">@CosmicDrifter</div>
-                    <div class="text-[8px] text-emerald-400">Cloud Active</div>
+                    <div class="text-[8px] text-emerald-400">GPS Cloud Active</div>
                 </div>
             </div>
         </div>
@@ -121,7 +120,7 @@
 
         <div id="input-panel" class="interactive-ui glass-panel w-full p-4 rounded-2xl hidden flex-col text-left space-y-3 max-h-[75vh] overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Nuovo Glitch Multimediale</h3>
+                <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Nuovo Glitch GPS</h3>
                 <button id="close-panel" class="text-gray-400 hover:text-white font-bold text-sm p-1">✕</button>
             </div>
 
@@ -148,7 +147,7 @@
             </div>
 
             <button id="submit-anomaly" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-space text-[11px] uppercase tracking-widest transition shadow-lg">
-                Trasmetti nel Globo Live
+                Trasmetti con GPS Reale
             </button>
         </div>
 
@@ -209,8 +208,8 @@
     </div>
 
     <footer class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto text-[9px] sm:text-xs text-gray-500 p-1">
-        <p>Globo 3D interattivo con Spazio e Post-Processing Bloom.</p>
-        <p class="font-space">Cloud Active</p>
+        <p>Globo 3D interattivo con geolocalizzazione GPS.</p>
+        <p class="font-space">GPS Cloud Active</p>
     </footer>
 
     <script type="importmap">
@@ -465,39 +464,24 @@
         );
         earthGroup.add(cloudsMesh);
 
-        const arcsGroup = new THREE.Group();
-        earthGroup.add(arcsGroup);
+        const pinsGroup = new THREE.Group();
+        earthGroup.add(pinsGroup);
 
-        function addConnectionArc(lat1, lon1, lat2, lon2) {
-            const phi1 = (90 - lat1) * (Math.PI / 180);
-            const theta1 = (lon1 + 180) * (Math.PI / 180);
-            const p1 = new THREE.Vector3(
-                -globeRadius * Math.sin(phi1) * Math.cos(theta1),
-                globeRadius * Math.cos(phi1),
-                globeRadius * Math.sin(phi1) * Math.sin(theta1)
+        function addPinToGlobe(lat, lon, color = 0x6366f1) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+            const pos = new THREE.Vector3(
+                -globeRadius * Math.sin(phi) * Math.cos(theta),
+                globeRadius * Math.cos(phi),
+                globeRadius * Math.sin(phi) * Math.sin(theta)
             );
 
-            const phi2 = (90 - lat2) * (Math.PI / 180);
-            const theta2 = (lon2 + 180) * (Math.PI / 180);
-            const p2 = new THREE.Vector3(
-                -globeRadius * Math.sin(phi2) * Math.cos(theta2),
-                globeRadius * Math.cos(phi2),
-                globeRadius * Math.sin(phi2) * Math.sin(theta2)
-            );
-
-            const mid = p1.clone().add(p2).multiplyScalar(0.5);
-            mid.normalize().multiplyScalar(globeRadius * 1.4);
-
-            const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
-            const points = curve.getPoints(50);
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            const material = new THREE.LineBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 0.6 });
-            const arcLine = new THREE.Line(geometry, material);
-            arcsGroup.add(arcLine);
+            const pinGeo = new THREE.SphereGeometry(0.06, 16, 16);
+            const pinMat = new THREE.MeshBasicMaterial({ color: color });
+            const pinMesh = new THREE.Mesh(pinGeo, pinMat);
+            pinMesh.position.copy(pos);
+            pinsGroup.add(pinMesh);
         }
-
-        addConnectionArc(40.85, 14.26, 37.77, -122.41);
-        addConnectionArc(40.85, 14.26, 35.67, 139.65);
 
         const starsCount = 2000;
         const starsGeometry = new THREE.BufferGeometry();
@@ -640,6 +624,9 @@
                       const data = doc.data();
                       if (data.visibility === 'public' || myFriendsIds.includes(data.userId)) {
                           renderAnomalyCard(cardId, data);
+                          if(data.lat !== undefined && data.lon !== undefined) {
+                              addPinToGlobe(data.lat, data.lon, data.visibility === 'public' ? 0x6366f1 : 0x10b981);
+                          }
                       }
                   });
               });
@@ -864,6 +851,29 @@
             });
         }
 
+        // Funzione per ottenere la posizione GPS reale con fallback
+        function getCurrentPositionAsync() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({ lat: 40.85, lon: 14.26 }); // Fallback coordinata default
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
+                        });
+                    },
+                    (error) => {
+                        console.warn("GPS non disponibile o permesso negato, uso posizione di default.", error);
+                        resolve({ lat: 40.85, lon: 14.26 }); // Fallback
+                    },
+                    { timeout: 10000, enableHighAccuracy: true }
+                );
+            });
+        }
+
         submitBtn.addEventListener('click', async () => {
             const textValue = anomalyText.value.trim();
             if(!textValue) { alert("Inserisci una descrizione per l'anomalia."); return; }
@@ -872,16 +882,20 @@
             let finalMediaUrl = anomalyMediaUrl.value.trim();
             const fileInput = anomalyFileInput.files[0];
 
+            submitBtn.disabled = true;
+            submitBtn.innerText = "RILEVAMENTO GPS E INVIO...";
+
+            // Otteniamo la posizione GPS reale prima di salvare su Firebase
+            const coords = await getCurrentPositionAsync();
+
             if (fileInput) {
-                submitBtn.disabled = true;
-                submitBtn.innerText = "OTTIMIZZAZIONE IN CORSO...";
                 try {
                     if (fileInput.type.startsWith('image/')) {
                         finalMediaUrl = await compressImage(fileInput, 900, 0.75);
                     } else {
                         if(fileInput.size > 8 * 1024 * 1024) {
                             alert("Il video è troppo pesante. Scegli un video più corto.");
-                            submitBtn.innerText = "TRASMETTI NEL GLOBO LIVE";
+                            submitBtn.innerText = "TRASMETTI CON GPS REALE";
                             submitBtn.disabled = false;
                             return;
                         }
@@ -891,7 +905,7 @@
                 } catch (err) {
                     console.error(err);
                     alert("Errore durante l'elaborazione del file.");
-                    submitBtn.innerText = "TRASMETTI NEL GLOBO LIVE";
+                    submitBtn.innerText = "TRASMETTI CON GPS REALE";
                     submitBtn.disabled = false;
                     return;
                 }
@@ -903,20 +917,22 @@
                 text: textValue,
                 mediaUrl: finalMediaUrl ? [finalMediaUrl] : [],
                 visibility: visibilityChoice,
+                lat: coords.lat,
+                lon: coords.lon,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert("Anomalia trasmessa con successo!");
+                alert("Anomalia e posizione GPS trasmesse con successo!");
                 inputPanel.classList.add('hidden');
                 inputPanel.classList.remove('flex');
                 actionTrigger.classList.remove('hidden');
                 anomalyText.value = '';
                 anomalyMediaUrl.value = '';
                 anomalyFileInput.value = '';
-                submitBtn.innerText = "TRASMETTI NEL GLOBO LIVE";
+                submitBtn.innerText = "TRASMETTI CON GPS REALE";
                 submitBtn.disabled = false;
             }).catch(() => {
                 alert("Errore di registrazione nel database.");
-                submitBtn.innerText = "TRASMETTI NEL GLOBO LIVE";
+                submitBtn.innerText = "TRASMETTI CON GPS REALE";
                 submitBtn.disabled = false;
             });
         });
