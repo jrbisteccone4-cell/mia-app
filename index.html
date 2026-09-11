@@ -346,12 +346,14 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Controlli di rotazione e zoom fluido avanzato
+        // Controlli di rotazione e zoom fluido avanzato (fissi al centro)
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.minDistance = 4.3;
         controls.maxDistance = 25;
+        controls.enablePan = false; 
+        controls.target.set(0, 0, 0);
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
