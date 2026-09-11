@@ -72,6 +72,12 @@
 
     <div id="webgl-container"></div>
 
+    <!-- CONTROLLI ZOOM TOUCH RAPIDI SU SCHERMO -->
+    <div class="ui-layer absolute left-4 bottom-24 flex flex-col space-y-2 z-20">
+        <button onclick="zoomInGlobe()" class="interactive-ui glass-panel w-11 h-11 rounded-full flex items-center justify-center text-white text-lg font-bold active:scale-90 transition border border-indigo-500/40 shadow-xl">➕</button>
+        <button onclick="zoomOutGlobe()" class="interactive-ui glass-panel w-11 h-11 rounded-full flex items-center justify-center text-white text-lg font-bold active:scale-90 transition border border-indigo-500/40 shadow-xl">➖</button>
+    </div>
+
     <!-- HUD RADAR OVERLAY -->
     <div class="radar-hud ui-layer hidden sm:flex">
         <div class="radar-scanner"></div>
@@ -288,7 +294,7 @@
         function playCosmicDrone() {
             if (!audioCtx || audioCtx.state !== 'running') return;
             
-            const freqs = [110.0, 164.81, 220.0]; // Accordi spaziali udibili (A2, E3, A3)
+            const freqs = [110.0, 164.81, 220.0]; 
             
             freqs.forEach((f, index) => {
                 let osc = audioCtx.createOscillator();
@@ -418,7 +424,7 @@
             if(el) el.remove();
         }
 
-        // --- THREE.JS GLOBE & CONTROLS (ZOOM E TOUCH MOBILE ABILITATI) ---
+        // --- THREE.JS GLOBE & CONTROLS ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
 
@@ -439,15 +445,24 @@
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.minDistance = 3.5;  // Zoom in massimo consentito
-        controls.maxDistance = 25;   // Zoom out massimo consentito nello spazio
-        controls.enableZoom = true;  // Zoom attivo
+        controls.minDistance = 3.5;  // Zoom in massimo
+        controls.maxDistance = 25;   // Zoom out massimo
+        controls.enableZoom = true;  
         controls.enablePan = false; 
         controls.target.set(0, 0, 0);
-        
-        // Gesti touch ottimizzati per smartphone (1 dito ruota, 2 dita fanno pinch-to-zoom)
-        controls.touches.ONE = THREE.TOUCH.ROTATE;
-        controls.touches.TWO = THREE.TOUCH.DOLLY;
+
+        // Funzioni globali per i pulsanti di Zoom Rapido su schermo
+        window.zoomInGlobe = function() {
+            if (camera.position.length() > controls.minDistance + 1) {
+                camera.position.multiplyScalar(0.85);
+            }
+        };
+
+        window.zoomOutGlobe = function() {
+            if (camera.position.length() < controls.maxDistance - 1) {
+                camera.position.multiplyScalar(1.15);
+            }
+        };
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.5));
         const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
@@ -590,7 +605,7 @@
         }
         animate();
 
-        // --- GESTIONE NOTIFICHE & AMICIZIE CON INTERATTIVITÀ PULSANTI ---
+        // --- GESTIONE NOTIFICHE & AMICIZIE ---
         const liveNotifsContainer = document.getElementById('live-notifications-container');
 
         db.collection("friend_requests")
