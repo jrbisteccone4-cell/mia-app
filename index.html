@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- META TAGS ANTI-CACHE PER AGGIORNAMENTO AUTOMATICO -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
-    <title>Anomalia // Global Glitch Radar Pro</title>
-    <!-- Tailwind CSS -->
+    <title>Anomalia // Global Glitch Radar Pro X</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <style>
@@ -27,11 +24,12 @@
         }
         h1, h2, h3, .font-space { font-family: 'Space Grotesk', sans-serif; }
         .glass-panel {
-            background: rgba(10, 10, 15, 0.92);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            background: rgba(10, 10, 18, 0.88);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .glass-input {
             background: rgba(255, 255, 255, 0.05);
@@ -53,34 +51,60 @@
         .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 4px; }
+
+        /* HUD Radar Circle Overlay */
+        .radar-hud {
+            position: absolute; bottom: 20px; right: 20px; width: 90px; height: 90px;
+            border: 1px dashed rgba(99, 102, 241, 0.4); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5;
+            opacity: 0.6;
+        }
+        .radar-scanner {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: conic-gradient(from 0deg at 50% 50%, rgba(99, 102, 241, 0) 0deg, rgba(99, 102, 241, 0.4) 360deg);
+            animation: radarRotate 4s linear infinite;
+        }
+        @keyframes radarRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="flex flex-col justify-between p-3 sm:p-6 h-full w-full">
 
     <div id="webgl-container"></div>
 
+    <!-- HUD RADAR OVERLAY -->
+    <div class="radar-hud ui-layer hidden sm:flex">
+        <div class="radar-scanner"></div>
+        <div class="absolute w-2 h-2 rounded-full bg-indigo-400 animate-ping"></div>
+    </div>
+
     <!-- HEADER -->
     <header class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto p-1">
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v5.8 PRO</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v6.0 PRO X</span>
             </div>
-            <!-- Badge Utenti Online Immediato -->
             <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
                 <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
                 <span id="online-count-badge" class="text-[9px] font-space text-gray-300">1 Online</span>
             </div>
         </div>
 
-        <!-- Profilo Utente -->
-        <div class="interactive-ui glass-panel px-3 py-1.5 rounded-full flex items-center space-x-2.5 cursor-pointer hover:border-indigo-500/50 transition" onclick="openProfileModal()">
-            <div class="w-8 h-8 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0">
-                <img id="user-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-full h-full object-cover">
-            </div>
-            <div class="text-left leading-tight truncate max-w-[100px] sm:max-w-xs">
-                <div id="username-display" class="text-[11px] font-space font-medium text-white truncate">@CosmicDrifter</div>
-                <div class="text-[8px] text-emerald-400">Cloud Active</div>
+        <div class="flex items-center space-x-2">
+            <!-- Audio Spaziale Toggle -->
+            <button id="audio-toggle-btn" onclick="toggleSpaceAudio()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition">
+                <span>🔇 Audio</span>
+            </button>
+
+            <!-- Profilo Utente -->
+            <div class="interactive-ui glass-panel px-3 py-1.5 rounded-full flex items-center space-x-2.5 cursor-pointer hover:border-indigo-500/50 transition" onclick="openProfileModal()">
+                <div class="w-8 h-8 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0">
+                    <img id="user-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-full h-full object-cover">
+                </div>
+                <div class="text-left leading-tight truncate max-w-[100px] sm:max-w-xs">
+                    <div id="username-display" class="text-[11px] font-space font-medium text-white truncate">@CosmicDrifter</div>
+                    <div class="text-[8px] text-emerald-400">Cloud Active</div>
+                </div>
             </div>
         </div>
     </header>
@@ -112,7 +136,6 @@
                 <input type="file" id="anomaly-file-input" accept="image/*,video/*" class="text-[10px] text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-space file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 w-full">
             </div>
 
-            <!-- OPZIONE PRIVACY VISIBILITÀ -->
             <div class="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-1">
                 <label class="text-[9px] text-indigo-300 uppercase font-space block">Visibilità Contenuto</label>
                 <div class="flex items-center space-x-4 text-[11px]">
@@ -132,18 +155,17 @@
             </button>
         </div>
 
-        <!-- Notifiche in tempo reale & Galleria Scorrevole -->
         <div id="live-notifications-container" class="interactive-ui w-full space-y-3 mt-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-1"></div>
 
     </main>
 
-    <!-- MODALE FULLSCREEN PER ZOOM IMMAGINI / VIDEO -->
+    <!-- MODALE ZOOM -->
     <div id="media-zoom-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex flex-col items-center justify-center p-2">
         <button onclick="closeMediaZoom()" class="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full z-50 text-sm font-bold w-10 h-10 flex items-center justify-center">✕</button>
         <div id="zoom-content-container" class="w-full h-full flex items-center justify-center p-2 overflow-auto"></div>
     </div>
 
-    <!-- MODALE NETWORK & UTENTI REALI -->
+    <!-- MODALE NETWORK -->
     <div id="network-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center">
@@ -165,7 +187,7 @@
         </div>
     </div>
 
-    <!-- MODALE PROFILO CON SELETTORE FOTO GALLERIA -->
+    <!-- MODALE PROFILO -->
     <div id="profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-3">
             <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Modifica Profilo</h3>
@@ -193,11 +215,11 @@
     </div>
 
     <footer class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto text-[9px] sm:text-xs text-gray-500 p-1">
-        <p>Globo 3D interattivo con Spazio.</p>
+        <p>Globo 3D interattivo con Spazio e Post-Processing Bloom.</p>
         <p class="font-space">Cloud Active</p>
     </footer>
 
-    <!-- IMPORT MAPS PER THREE.JS -->
+    <!-- IMPORT MAPS PER THREE.JS E POSTPROCESSING -->
     <script type="importmap">
         {
             "imports": {
@@ -207,13 +229,51 @@
         }
     </script>
 
-    <!-- SDK FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- AUDIO SPAZIALE PROCEDURALE ---
+        let audioCtx = null;
+        let audioInterval = null;
+        window.toggleSpaceAudio = function() {
+            const btn = document.getElementById('audio-toggle-btn');
+            if(!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioInterval = setInterval(() => {
+                    if(audioCtx && audioCtx.state === 'running') {
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(65 + Math.random() * 40, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 3);
+                    }
+                }, 3500);
+                btn.innerHTML = "🔊 Audio ON";
+                btn.classList.add('border-indigo-500', 'text-white');
+            } else {
+                if(audioCtx.state === 'running') {
+                    audioCtx.suspend();
+                    btn.innerHTML = "🔇 Audio";
+                    btn.classList.remove('border-indigo-500', 'text-white');
+                } else {
+                    audioCtx.resume();
+                    btn.innerHTML = "🔊 Audio ON";
+                    btn.classList.add('border-indigo-500', 'text-white');
+                }
+            }
+        }
 
         // --- CONFIGURAZIONE FIREBASE ---
         const firebaseConfig = {
@@ -229,19 +289,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- GESTIONE UTENTE ---
         let myId = localStorage.getItem('anomalia_my_id');
         if (!myId) {
             myId = 'user_' + Math.random().toString(36).substring(2, 9);
             localStorage.setItem('anomalia_my_id', myId);
         }
 
-        let savedUser = localStorage.getItem('anomalia_username');
-        if (!savedUser) {
-            savedUser = '@CosmicDrifter';
-            localStorage.setItem('anomalia_username', savedUser);
-        }
-
+        let savedUser = localStorage.getItem('anomalia_username') || '@CosmicDrifter';
         let savedAvatar = localStorage.getItem('anomalia_avatar') || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
         
         document.getElementById('username-display').innerText = savedUser;
@@ -270,10 +324,7 @@
                 snapshot.forEach((doc) => {
                     const data = doc.data();
                     if(data.lastSeen && data.username) {
-                        const lastSeenTime = data.lastSeen.toDate().getTime();
-                        if((now - lastSeenTime) < 60000) {
-                            activeCount++;
-                        }
+                        if((now - data.lastSeen.toDate().getTime()) < 60000) activeCount++;
                     }
                 });
                 if(activeCount === 0) activeCount = 1;
@@ -283,7 +334,6 @@
         updateGlobalOnlineCount();
         setInterval(updateGlobalOnlineCount, 15000);
 
-        // --- LISTA AMICI & RICHIESTE ---
         let myFriendsIds = [myId]; 
         let friendDocIds = {}; 
         let pendingRequestsMap = {}; 
@@ -334,7 +384,7 @@
             if(el) el.remove();
         }
 
-        // --- THREE.JS GLOBE SETUP CON FOTOREALISMO E SPAZIO STELLATO (SENZA NAZIONI) ---
+        // --- THREE.JS GLOBE CON POST-PROCESSING BLOOM E ARCHI DI CONNESSIONE ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
 
@@ -346,7 +396,13 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         container.appendChild(renderer.domElement);
 
-        // Controlli di rotazione e zoom fluido avanzato (fissi al centro senza spostamento sui tocchi multipli)
+        // Post-processing Composer & Bloom Pass
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.8, 0.4, 0.85);
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
@@ -357,8 +413,8 @@
         controls.touches.ONE = THREE.TOUCH.ROTATE;
         controls.touches.TWO = THREE.TOUCH.DOLLY;
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const sunLight = new THREE.DirectionalLight(0xffffff, 2.2);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
         sunLight.position.set(6, 3, 5);
         scene.add(sunLight);
 
@@ -396,7 +452,43 @@
         );
         earthGroup.add(cloudsMesh);
 
-        // Spazio Stellato Tridimensionale in Movimento (Sfondo Esterno)
+        // Gruppo Archi di Connessione Globale (Linee fra punti del globo)
+        const arcsGroup = new THREE.Group();
+        earthGroup.add(arcsGroup);
+
+        function addConnectionArc(lat1, lon1, lat2, lon2) {
+            const phi1 = (90 - lat1) * (Math.PI / 180);
+            const theta1 = (lon1 + 180) * (Math.PI / 180);
+            const p1 = new THREE.Vector3(
+                -globeRadius * Math.sin(phi1) * Math.cos(theta1),
+                globeRadius * Math.cos(phi1),
+                globeRadius * Math.sin(phi1) * Math.sin(theta1)
+            );
+
+            const phi2 = (90 - lat2) * (Math.PI / 180);
+            const theta2 = (lon2 + 180) * (Math.PI / 180);
+            const p2 = new THREE.Vector3(
+                -globeRadius * Math.sin(phi2) * Math.cos(theta2),
+                globeRadius * Math.cos(phi2),
+                globeRadius * Math.sin(phi2) * Math.sin(theta2)
+            );
+
+            const mid = p1.clone().add(p2).multiplyScalar(0.5);
+            mid.normalize().multiplyScalar(globeRadius * 1.4);
+
+            const curve = new THREE.QuadraticBezierCurve3(p1, mid, p2);
+            const points = curve.getPoints(50);
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 0.6 });
+            const arcLine = new THREE.Line(geometry, material);
+            arcsGroup.add(arcLine);
+        }
+
+        // Aggiungiamo qualche arco di connessione iniziale di esempio
+        addConnectionArc(40.85, 14.26, 37.77, -122.41); // Napoli -> San Francisco
+        addConnectionArc(40.85, 14.26, 35.67, 139.65);  // Napoli -> Tokyo
+
+        // Spazio Stellato
         const starsCount = 2000;
         const starsGeometry = new THREE.BufferGeometry();
         const starsPositions = new Float32Array(starsCount * 3);
@@ -415,12 +507,10 @@
 
             starsSpeeds[i / 3] = 0.0001 + Math.random() * 0.0003;
         }
-
         starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
 
         const starCanvas = document.createElement('canvas');
-        starCanvas.width = 32;
-        starCanvas.height = 32;
+        starCanvas.width = 32; starCanvas.height = 32;
         const starCtx = starCanvas.getContext('2d');
         const gradient = starCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
         gradient.addColorStop(0, 'rgba(255,255,255,1)');
@@ -431,28 +521,22 @@
 
         const starTexture = new THREE.CanvasTexture(starCanvas);
         const starsMaterial = new THREE.PointsMaterial({
-            color: 0xffffff,
-            size: 2.2,
-            map: starTexture,
-            transparent: true,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
+            color: 0xffffff, size: 2.2, map: starTexture,
+            transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
         });
 
         const starField = new THREE.Points(starsGeometry, starsMaterial);
         scene.add(starField);
 
-        // Ridimensionamento dinamico finestra
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Loop di Animazione Principale
         function animate() {
             requestAnimationFrame(animate);
-            
             earthGroup.rotation.y += 0.0008;
             cloudsMesh.rotation.y += 0.001;
 
@@ -463,18 +547,17 @@
                 const speed = starsSpeeds[i];
                 const cos = Math.cos(speed);
                 const sin = Math.sin(speed);
-
                 positions[i * 3] = x * cos - z * sin;
                 positions[i * 3 + 2] = z * cos + x * sin;
             }
             starsGeometry.attributes.position.needsUpdate = true;
 
             controls.update();
-            renderer.render(scene, camera);
+            composer.render();
         }
         animate();
 
-        // --- ASCOLTO RICHIESTE AMICIZIA IN TEMPO REALE ---
+        // --- GESTIONE NOTIFICHE & AMICIZIE ---
         const liveNotifsContainer = document.getElementById('live-notifications-container');
 
         db.collection("friend_requests")
@@ -491,19 +574,18 @@
 
         function showFriendRequestNotification(reqId, fromName) {
             const notifId = 'req_' + reqId;
-            if(getDismissedItems().includes(notifId)) return;
-            if(document.getElementById(notifId)) return;
+            if(getDismissedItems().includes(notifId) || document.getElementById(notifId)) return;
 
             const div = document.createElement('div');
             div.id = notifId;
             div.className = "glass-panel p-3 rounded-xl border-l-2 border-emerald-400 text-left space-y-2 relative";
             div.innerHTML = `
-                <button onclick="dismissItem('${notifId}')" class="absolute top-2 right-2 text-gray-400 hover:text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full bg-white/5 transition" title="Chiudi scheda">✕</button>
+                <button onclick="dismissItem('${notifId}')" class="absolute top-2 right-2 text-gray-400 hover:text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full bg-white/5 transition" title="Chiudi">✕</button>
                 <div class="text-[9px] font-space text-emerald-400 uppercase tracking-widest pr-6">Richiesta d'Amicizia</div>
                 <p class="text-[11px] text-white"><b>${fromName}</b> vuole aggiungerti agli amici.</p>
                 <div class="flex space-x-2 pt-1">
                     <button onclick="acceptFriendRequest('${reqId}', '${notifId}')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-[10px] font-space text-white uppercase">Accetta</button>
-                    <button onclick="rejectFriendRequest('${reqId}', '${notifId}')" class="py-1.5 px-3 bg-rose-600/80 hover:bg-rose-600 rounded-lg text-[10px] font-space text-white uppercase">Rifiuta</button>
+                    <button onclick="rejectFriendRequest('${reqId}', '${notifId}')" class="py-1.5 px-3 bg-rose-600/85 hover:bg-rose-600 rounded-lg text-[10px] font-space text-white uppercase">Rifiuta</button>
                 </div>
             `;
             liveNotifsContainer.prepend(div);
@@ -534,15 +616,12 @@
               });
         }
 
-        // --- RICEZIONE ANOMALIE ---
         function loadAnomaliesFeed() {
             db.collection("anomalies")
               .orderBy("timestamp", "desc")
               .limit(20)
               .onSnapshot((snapshot) => {
-                  const existingAnomalies = document.querySelectorAll('[id^="card_"]');
-                  existingAnomalies.forEach(el => el.remove());
-
+                  document.querySelectorAll('[id^="card_"]').forEach(el => el.remove());
                   const dismissed = getDismissedItems();
 
                   snapshot.forEach((doc) => {
@@ -550,16 +629,12 @@
                       if(dismissed.includes(cardId)) return;
 
                       const data = doc.data();
-                      const isPublic = data.visibility === 'public';
-                      const isFriendOrMe = myFriendsIds.includes(data.userId);
-
-                      if (isPublic || isFriendOrMe) {
+                      if (data.visibility === 'public' || myFriendsIds.includes(data.userId)) {
                           renderAnomalyCard(cardId, data);
                       }
                   });
               });
         }
-        
         setTimeout(() => { loadAnomaliesFeed(); }, 500);
 
         function renderAnomalyCard(cardId, data) {
@@ -570,32 +645,27 @@
             div.className = "glass-panel p-3 rounded-xl border-l-2 border-indigo-500 text-left space-y-2 mb-2 w-full relative";
             
             let mediaHtml = '';
-            if(data.mediaUrl) {
-                const mediaItems = Array.isArray(data.mediaUrl) ? data.mediaUrl : [data.mediaUrl];
+            if(data.mediaUrl && data.mediaUrl.length > 0) {
                 let itemsList = '';
-                mediaItems.forEach(url => {
+                data.mediaUrl.forEach(url => {
                     if(url.startsWith('data:video') || url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
                         itemsList += `
                             <div class="flex-shrink-0 w-36 h-28 bg-black/50 rounded-lg overflow-hidden border border-indigo-500/30 relative cursor-pointer group" onclick="openMediaZoom('video', '${url}')">
                                 <video src="${url}" class="w-full h-full object-cover"></video>
-                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition">
-                                    <svg class="w-8 h-8 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </div>
+                                <div class="absolute inset-0 bg-black/30 flex items-center justify-center"><svg class="w-8 h-8 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
                             </div>`;
                     } else {
                         itemsList += `
                             <div class="flex-shrink-0 w-36 h-28 bg-black/50 rounded-lg overflow-hidden border border-indigo-500/30 relative cursor-pointer group" onclick="openMediaZoom('image', '${url}')">
-                                <img src="${url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                <div class="absolute bottom-1 right-1 bg-black/60 rounded px-1 text-[8px] text-white">Zoom 🔍</div>
+                                <img src="${url}" class="w-full h-full object-cover">
                             </div>`;
                     }
                 });
-
                 mediaHtml = `<div class="flex space-x-2 overflow-x-auto py-1 custom-scrollbar w-full">${itemsList}</div>`;
             }
 
             div.innerHTML = `
-                <button onclick="dismissItem('${cardId}')" class="absolute top-2 right-2 text-gray-400 hover:text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full bg-white/5 transition" title="Chiudi scheda">✕</button>
+                <button onclick="dismissItem('${cardId}')" class="absolute top-2 right-2 text-gray-400 hover:text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full bg-white/5 transition" title="Chiudi">✕</button>
                 <div class="text-[9px] font-space text-indigo-400 uppercase tracking-widest flex justify-between pr-6">
                     <span>${data.visibility === 'public' ? 'Glitch Pubblico' : 'Glitch Privato (Amici)'}</span>
                     <span class="text-white font-bold">${data.username}</span>
@@ -614,22 +684,14 @@
             if(type === 'video') {
                 zoomContainer.innerHTML = `<video src="${url}" controls autoplay playsinline class="max-w-full max-h-[85vh] rounded-xl shadow-2xl"></video>`;
             } else {
-                zoomContainer.innerHTML = `<img src="${url}" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl transition-transform duration-300 scale-100 cursor-zoom-in" onclick="this.style.transform = this.style.transform === 'scale(2)' ? 'scale(1)' : 'scale(2)'">`;
+                zoomContainer.innerHTML = `<img src="${url}" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl">`;
             }
             zoomModal.classList.remove('hidden');
         }
+        window.closeMediaZoom = function() { zoomModal.classList.add('hidden'); zoomContainer.innerHTML = ''; }
 
-        window.closeMediaZoom = function() {
-            zoomModal.classList.add('hidden');
-            zoomContainer.innerHTML = '';
-        }
-
-        // --- GESTIONE NETWORK MODAL & UTENTI REALI (Filtro Anti-Fantasmi 60s) ---
         const networkModal = document.getElementById('network-modal');
-        window.openNetworkModal = function() { 
-            networkModal.classList.remove('hidden'); 
-            fetchMyFriends().then(() => fetchOnlineUsers()); 
-        }
+        window.openNetworkModal = function() { networkModal.classList.remove('hidden'); fetchMyFriends().then(() => fetchOnlineUsers()); }
         window.closeNetworkModal = function() { networkModal.classList.add('hidden'); }
 
         function fetchOnlineUsers(searchQuery = "") {
@@ -643,15 +705,10 @@
 
                 querySnapshot.forEach((doc) => {
                     const userData = doc.data();
-                    if(userData.id === myId) return;
-                    
-                    if(!userData.username || !userData.lastSeen) return;
-                    const lastSeenTime = userData.lastSeen.toDate().getTime();
-                    if((now - lastSeenTime) > 60000) return;
+                    if(userData.id === myId || !userData.username || !userData.lastSeen) return;
+                    if((now - userData.lastSeen.toDate().getTime()) > 60000) return;
 
-                    const usernameStr = userData.username.toLowerCase();
-                    const queryStr = searchQuery.toLowerCase().trim();
-                    if(queryStr && !usernameStr.includes(queryStr)) return;
+                    if(searchQuery && !userData.username.toLowerCase().includes(searchQuery.toLowerCase().trim())) return;
 
                     count++;
                     const isAlreadyFriend = myFriendsIds.includes(userData.id);
@@ -659,12 +716,12 @@
 
                     let actionBtnHtml = '';
                     if (isAlreadyFriend) {
-                        actionBtnHtml = `<button onclick="removeFriend('${userData.id}', '${userData.username}')" class="px-2.5 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/80 hover:bg-rose-600 text-white transition">- Elimina</button>`;
+                        actionBtnHtml = `<button onclick="removeFriend('${userData.id}', '${userData.username}')" class="px-2.5 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/85 hover:bg-rose-600 text-white transition">- Elimina</button>`;
                     } else if (pendingInfo && pendingInfo.type === 'incoming') {
                         actionBtnHtml = `
                             <div class="flex space-x-1">
                                 <button onclick="acceptFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-emerald-600 hover:bg-emerald-500 text-white transition">Accetta</button>
-                                <button onclick="rejectFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/80 hover:bg-rose-600 text-white transition">Rifiuta</button>
+                                <button onclick="rejectFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/85 hover:bg-rose-600 text-white transition">Rifiuta</button>
                             </div>`;
                     } else if (pendingInfo && pendingInfo.type === 'outgoing') {
                         actionBtnHtml = `<span class="text-[9px] text-amber-400 font-space uppercase px-2 py-1">In attesa</span>`;
@@ -677,8 +734,8 @@
                     containerEl.innerHTML += `
                         <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10">
                             <div class="flex items-center space-x-2.5">
-                                <div class="w-9 h-9 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0 cursor-pointer group relative" onclick="openMediaZoom('image', '${avatarSrc}')" title="Tocca per ingrandire foto">
-                                    <img src="${avatarSrc}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
+                                <div class="w-9 h-9 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0">
+                                    <img src="${avatarSrc}" class="w-full h-full object-cover">
                                 </div>
                                 <div class="text-left">
                                     <div class="text-xs font-space text-white">${userData.username}</div>
@@ -689,9 +746,7 @@
                         </div>`;
                 });
 
-                if(count === 0) {
-                    containerEl.innerHTML = `<p class="text-center text-gray-500 text-[11px] py-6">Nessun utente attivo trovato.</p>`;
-                }
+                if(count === 0) containerEl.innerHTML = `<p class="text-center text-gray-500 text-[11px] py-6">Nessun utente attivo trovato.</p>`;
                 document.getElementById('online-count-badge').innerText = `${count + 1} Online`;
                 document.getElementById('modal-online-sub').innerText = `${count + 1} utenti attivi globali`;
             });
@@ -729,7 +784,6 @@
             });
         }
 
-        // --- INTERAZIONI UI & CARICAMENTO FILE ---
         const actionTrigger = document.getElementById('action-trigger');
         const inputPanel = document.getElementById('input-panel');
         const closePanelBtn = document.getElementById('close-panel');
@@ -746,7 +800,6 @@
         window.closeProfileModal = function() { profileModal.classList.add('hidden'); }
 
         let tempNewAvatarBase64 = null;
-
         window.previewProfileImage = async function(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
