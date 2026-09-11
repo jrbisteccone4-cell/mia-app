@@ -45,6 +45,7 @@
             position: fixed; top: 0; left: 0;
             width: 100vw; height: 100vh;
             z-index: 1; pointer-events: auto;
+            touch-action: none;
         }
         .ui-layer { position: relative; z-index: 10; pointer-events: none; }
         .interactive-ui { pointer-events: auto; }
@@ -82,7 +83,7 @@
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v6.2 PRO X</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v6.3 PRO X</span>
             </div>
             <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
                 <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
@@ -239,7 +240,7 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // --- AUDIO SPAZIALE PROCEDURALE (FIXED TOGGLE BUG) ---
+        // --- AUDIO PROCEDURALE MIGLIORATO E UDIBILE ---
         let audioCtx = null;
         let audioInterval = null;
         let isAudioPlaying = false;
@@ -260,20 +261,14 @@
             if (isAudioPlaying) {
                 if (audioCtx.state === 'running') {
                     if (audioInterval) clearInterval(audioInterval);
+                    
+                    playCosmicDrone();
+
                     audioInterval = setInterval(() => {
                         if (audioCtx && audioCtx.state === 'running' && isAudioPlaying) {
-                            let osc = audioCtx.createOscillator();
-                            let gain = audioCtx.createGain();
-                            osc.type = 'sine';
-                            osc.frequency.setValueAtTime(65 + Math.random() * 40, audioCtx.currentTime);
-                            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-                            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3);
-                            osc.connect(gain);
-                            gain.connect(audioCtx.destination);
-                            osc.start();
-                            osc.stop(audioCtx.currentTime + 3);
+                            playCosmicDrone();
                         }
-                    }, 3500);
+                    }, 4000);
                 }
                 btn.innerHTML = "🔊 Audio ON";
                 btn.classList.add('border-indigo-500', 'text-white');
@@ -288,6 +283,30 @@
                 btn.innerHTML = "🔇 Audio";
                 btn.classList.remove('border-indigo-500', 'text-white');
             }
+        }
+
+        function playCosmicDrone() {
+            if (!audioCtx || audioCtx.state !== 'running') return;
+            
+            const freqs = [110.0, 164.81, 220.0]; // Accordi spaziali udibili (A2, E3, A3)
+            
+            freqs.forEach((f, index) => {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                
+                osc.type = index === 0 ? 'sine' : 'triangle';
+                osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.8);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.8);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 4.0);
+            });
         }
 
         // --- CONFIGURAZIONE FIREBASE ---
@@ -399,7 +418,7 @@
             if(el) el.remove();
         }
 
-        // --- THREE.JS GLOBE & CONTROLS (ZOOM E GESTI CORRETTI) ---
+        // --- THREE.JS GLOBE & CONTROLS (ZOOM E TOUCH MOBILE ABILITATI) ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
 
@@ -420,13 +439,13 @@
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.minDistance = 3.8; // Permette di zoomare molto vicino al globo
-        controls.maxDistance = 30;  // Permette di fare zoom out notevole nello spazio
-        controls.enableZoom = true; // Assicura che lo zoom sia attivo
+        controls.minDistance = 3.5;  // Zoom in massimo consentito
+        controls.maxDistance = 25;   // Zoom out massimo consentito nello spazio
+        controls.enableZoom = true;  // Zoom attivo
         controls.enablePan = false; 
         controls.target.set(0, 0, 0);
         
-        // Configurazioni touch e mouse per interazione fluida
+        // Gesti touch ottimizzati per smartphone (1 dito ruota, 2 dita fanno pinch-to-zoom)
         controls.touches.ONE = THREE.TOUCH.ROTATE;
         controls.touches.TWO = THREE.TOUCH.DOLLY;
 
