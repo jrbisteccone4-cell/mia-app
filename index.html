@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body, html {
             font-family: 'Inter', sans-serif;
             background-color: #000002;
@@ -21,6 +21,10 @@
             width: 100%; height: 100%;
             overflow: hidden; position: fixed;
             user-select: none; -webkit-user-select: none;
+        }
+        /* Impedisce l'ingrandimento automatico di iOS/Android sui campi di testo */
+        input, textarea, select {
+            font-size: 16px !important;
         }
         h1, h2, h3, .font-space { font-family: 'Space Grotesk', sans-serif; }
         .glass-panel {
@@ -52,7 +56,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 4px; }
 
-        /* HUD Radar Circle Overlay */
         .radar-hud {
             position: absolute; bottom: 20px; right: 20px; width: 90px; height: 90px;
             border: 1px dashed rgba(99, 102, 241, 0.4); border-radius: 50%;
@@ -71,13 +74,11 @@
 
     <div id="webgl-container"></div>
 
-    <!-- HUD RADAR OVERLAY -->
     <div class="radar-hud ui-layer hidden sm:flex">
         <div class="radar-scanner"></div>
         <div class="absolute w-2 h-2 rounded-full bg-indigo-400 animate-ping"></div>
     </div>
 
-    <!-- HEADER -->
     <header class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto p-1">
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
@@ -91,12 +92,10 @@
         </div>
 
         <div class="flex items-center space-x-2">
-            <!-- Audio Spaziale Toggle -->
             <button id="audio-toggle-btn" onclick="toggleSpaceAudio()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition">
                 <span>🔇 Audio</span>
             </button>
 
-            <!-- Profilo Utente -->
             <div class="interactive-ui glass-panel px-3 py-1.5 rounded-full flex items-center space-x-2.5 cursor-pointer hover:border-indigo-500/50 transition" onclick="openProfileModal()">
                 <div class="w-8 h-8 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0">
                     <img id="user-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-full h-full object-cover">
@@ -109,7 +108,6 @@
         </div>
     </header>
 
-    <!-- CENTRO INTERATTIVO -->
     <main class="ui-layer flex flex-col items-center justify-center flex-grow w-full max-w-sm mx-auto text-center p-2 relative">
         
         <div id="action-trigger" class="interactive-ui cursor-pointer group">
@@ -121,18 +119,17 @@
             <span class="font-space text-[10px] sm:text-xs tracking-wider text-gray-300 group-hover:text-white transition">CATTURA ANOMALIA</span>
         </div>
 
-        <!-- Pannello Inserimento Anomalia -->
         <div id="input-panel" class="interactive-ui glass-panel w-full p-4 rounded-2xl hidden flex-col text-left space-y-3 max-h-[75vh] overflow-y-auto">
             <div class="flex justify-between items-center">
                 <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Nuovo Glitch Multimediale</h3>
                 <button id="close-panel" class="text-gray-400 hover:text-white font-bold text-sm p-1">✕</button>
             </div>
 
-            <textarea id="anomaly-text" rows="2" class="glass-input w-full p-2.5 rounded-xl text-xs text-white resize-none" placeholder="Descrivi l'anomalia..."></textarea>
+            <textarea id="anomaly-text" rows="2" class="glass-input w-full p-2.5 rounded-xl text-white resize-none" placeholder="Descrivi l'anomalia..."></textarea>
 
             <div>
                 <label class="text-[9px] text-gray-400 uppercase block mb-1">Allega Immagine o Video Breve</label>
-                <input type="text" id="anomaly-media-url" class="glass-input w-full p-2 rounded-xl text-xs text-white mb-2 hidden" placeholder="Incolla link...">
+                <input type="text" id="anomaly-media-url" class="glass-input w-full p-2 rounded-xl text-white mb-2 hidden" placeholder="Incolla link...">
                 <input type="file" id="anomaly-file-input" accept="image/*,video/*" class="text-[10px] text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-space file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 w-full">
             </div>
 
@@ -159,13 +156,11 @@
 
     </main>
 
-    <!-- MODALE ZOOM -->
     <div id="media-zoom-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex flex-col items-center justify-center p-2">
         <button onclick="closeMediaZoom()" class="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full z-50 text-sm font-bold w-10 h-10 flex items-center justify-center">✕</button>
         <div id="zoom-content-container" class="w-full h-full flex items-center justify-center p-2 overflow-auto"></div>
     </div>
 
-    <!-- MODALE NETWORK -->
     <div id="network-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center">
@@ -177,7 +172,7 @@
             </div>
 
             <div class="relative">
-                <input type="text" id="user-search-input" oninput="filterCloudUsers(this.value)" placeholder="Cerca @username..." class="glass-input w-full py-2 px-3 pl-8 rounded-xl text-xs text-white">
+                <input type="text" id="user-search-input" oninput="filterCloudUsers(this.value)" placeholder="Cerca @username..." class="glass-input w-full py-2 px-3 pl-8 rounded-xl text-white">
                 <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
 
@@ -187,7 +182,6 @@
         </div>
     </div>
 
-    <!-- MODALE PROFILO -->
     <div id="profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-3">
             <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Modifica Profilo</h3>
@@ -204,7 +198,7 @@
 
             <div>
                 <label class="text-[9px] text-gray-400 uppercase">Username</label>
-                <input type="text" id="modal-username-input" class="glass-input w-full p-2 rounded-xl text-xs text-white mt-1" value="@CosmicDrifter">
+                <input type="text" id="modal-username-input" class="glass-input w-full p-2 rounded-xl text-white mt-1" value="@CosmicDrifter">
             </div>
 
             <div class="flex space-x-2 pt-2">
@@ -219,7 +213,6 @@
         <p class="font-space">Cloud Active</p>
     </footer>
 
-    <!-- IMPORT MAPS PER THREE.JS E POSTPROCESSING -->
     <script type="importmap">
         {
             "imports": {
@@ -239,7 +232,6 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // --- AUDIO PROCEDURALE MIGLIORATO E UDIBILE ---
         let audioCtx = null;
         let audioInterval = null;
         let isAudioPlaying = false;
@@ -260,9 +252,7 @@
             if (isAudioPlaying) {
                 if (audioCtx.state === 'running') {
                     if (audioInterval) clearInterval(audioInterval);
-                    
                     playCosmicDrone();
-
                     audioInterval = setInterval(() => {
                         if (audioCtx && audioCtx.state === 'running' && isAudioPlaying) {
                             playCosmicDrone();
@@ -286,29 +276,22 @@
 
         function playCosmicDrone() {
             if (!audioCtx || audioCtx.state !== 'running') return;
-            
             const freqs = [110.0, 164.81, 220.0]; 
-            
             freqs.forEach((f, index) => {
                 let osc = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
-                
                 osc.type = index === 0 ? 'sine' : 'triangle';
                 osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-                
                 gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
                 gain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.8);
                 gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.8);
-                
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-                
                 osc.start();
                 osc.stop(audioCtx.currentTime + 4.0);
             });
         }
 
-        // --- CONFIGURAZIONE FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAUe3Yqx8OaLDf-i2ATQW1zpQp9hyAZkE8",
             authDomain: "anomaly-108cf.firebaseapp.com",
@@ -417,7 +400,6 @@
             if(el) el.remove();
         }
 
-        // --- THREE.JS GLOBE & CONTROLS ---
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
 
@@ -438,9 +420,9 @@
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.minDistance = 3.5;  // Zoom in massimo
-        controls.maxDistance = 25;   // Zoom out massimo
-        controls.enableZoom = true;  // Abilita zoom nativo (pinch / scroll)
+        controls.minDistance = 3.5;
+        controls.maxDistance = 25;
+        controls.enableZoom = true;
         controls.enablePan = false; 
         controls.target.set(0, 0, 0);
 
@@ -585,7 +567,6 @@
         }
         animate();
 
-        // --- GESTIONE NOTIFICHE & AMICIZIE ---
         const liveNotifsContainer = document.getElementById('live-notifications-container');
 
         db.collection("friend_requests")
