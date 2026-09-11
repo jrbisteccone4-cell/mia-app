@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -45,7 +45,6 @@
             position: fixed; top: 0; left: 0;
             width: 100vw; height: 100vh;
             z-index: 1; pointer-events: auto;
-            touch-action: none;
         }
         .ui-layer { position: relative; z-index: 10; pointer-events: none; }
         .interactive-ui { pointer-events: auto; }
@@ -71,12 +70,6 @@
 <body class="flex flex-col justify-between p-3 sm:p-6 h-full w-full">
 
     <div id="webgl-container"></div>
-
-    <!-- CONTROLLI ZOOM TOUCH RAPIDI SU SCHERMO -->
-    <div class="ui-layer absolute left-4 bottom-24 flex flex-col space-y-2 z-20">
-        <button onclick="zoomInGlobe()" class="interactive-ui glass-panel w-11 h-11 rounded-full flex items-center justify-center text-white text-lg font-bold active:scale-90 transition border border-indigo-500/40 shadow-xl">➕</button>
-        <button onclick="zoomOutGlobe()" class="interactive-ui glass-panel w-11 h-11 rounded-full flex items-center justify-center text-white text-lg font-bold active:scale-90 transition border border-indigo-500/40 shadow-xl">➖</button>
-    </div>
 
     <!-- HUD RADAR OVERLAY -->
     <div class="radar-hud ui-layer hidden sm:flex">
@@ -447,22 +440,9 @@
         controls.dampingFactor = 0.05;
         controls.minDistance = 3.5;  // Zoom in massimo
         controls.maxDistance = 25;   // Zoom out massimo
-        controls.enableZoom = true;  
+        controls.enableZoom = true;  // Abilita zoom nativo (pinch / scroll)
         controls.enablePan = false; 
         controls.target.set(0, 0, 0);
-
-        // Funzioni globali per i pulsanti di Zoom Rapido su schermo
-        window.zoomInGlobe = function() {
-            if (camera.position.length() > controls.minDistance + 1) {
-                camera.position.multiplyScalar(0.85);
-            }
-        };
-
-        window.zoomOutGlobe = function() {
-            if (camera.position.length() < controls.maxDistance - 1) {
-                camera.position.multiplyScalar(1.15);
-            }
-        };
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.5));
         const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
