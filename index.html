@@ -80,10 +80,10 @@
 
     <!-- HEADER -->
     <header class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto p-1">
-        <div class="flex items-center space-x-3">
-            <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="hidden md:flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v6.6 AUDIO UI PRO</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v7.0</span>
             </div>
             <div onclick="playUiClick(); openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
                 <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
@@ -92,6 +92,11 @@
         </div>
 
         <div class="flex items-center space-x-2">
+            <!-- Pulsante Filtro 3D Globo -->
+            <button id="globe-filter-btn" onclick="playUiClick(); toggleGlobeFilter()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition">
+                <span>🎨 <span id="filter-name">Satellitare</span></span>
+            </button>
+
             <button id="audio-toggle-btn" onclick="playUiClick(); toggleSpaceAudio()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition">
                 <span>🔇 Audio</span>
             </button>
@@ -100,9 +105,9 @@
                 <div class="w-8 h-8 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0">
                     <img id="user-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-full h-full object-cover">
                 </div>
-                <div class="text-left leading-tight truncate max-w-[100px] sm:max-w-xs">
+                <div class="text-left leading-tight truncate max-w-[90px] sm:max-w-xs">
                     <div id="username-display" class="text-[11px] font-space font-medium text-white truncate">@CosmicDrifter</div>
-                    <div class="text-[8px] text-emerald-400">Audio UI Active</div>
+                    <div class="text-[8px] text-emerald-400">GPS & Audio Active</div>
                 </div>
             </div>
         </div>
@@ -117,20 +122,20 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path>
                 </svg>
             </div>
-            <span class="font-space text-[10px] sm:text-xs tracking-wider text-gray-300 group-hover:text-white transition">CATTURA ANOMALIA</span>
+            <span class="font-space text-[10px] sm:text-xs tracking-wider text-gray-300 group-hover:text-white transition">CATTURA ANOMALIA GPS</span>
         </div>
 
         <!-- Pannello Inserimento Anomalia -->
         <div id="input-panel" class="interactive-ui glass-panel w-full p-4 rounded-2xl hidden flex-col text-left space-y-3 max-h-[75vh] overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Nuovo Glitch GPS</h3>
+                <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Nuovo Glitch GPS Reale</h3>
                 <button id="close-panel" onclick="playUiClick()" class="text-gray-400 hover:text-white font-bold text-sm p-1">✕</button>
             </div>
 
             <textarea id="anomaly-text" rows="2" class="glass-input w-full p-2.5 rounded-xl text-white resize-none" placeholder="Descrivi l'anomalia..."></textarea>
 
             <div>
-                <label class="text-[9px] text-gray-400 uppercase block mb-1">Allega Immagine o Video Breve</label>
+                <label class="text-[9px] text-gray-400 uppercase block mb-1">Allega Immagine o Video</label>
                 <input type="text" id="anomaly-media-url" class="glass-input w-full p-2 rounded-xl text-white mb-2 hidden" placeholder="Incolla link...">
                 <input type="file" id="anomaly-file-input" accept="image/*,video/*" class="text-[10px] text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-space file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 w-full">
             </div>
@@ -158,7 +163,7 @@
 
     </main>
 
-    <!-- MODALE ZOOM -->
+    <!-- MODALE ZOOM MEDIA -->
     <div id="media-zoom-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex flex-col items-center justify-center p-2">
         <button onclick="playUiClick(); closeMediaZoom()" class="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full z-50 text-sm font-bold w-10 h-10 flex items-center justify-center">✕</button>
         <div id="zoom-content-container" class="w-full h-full flex items-center justify-center p-2 overflow-auto"></div>
@@ -169,7 +174,7 @@
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Radar Network Reale</h3>
+                    <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Radar Network & Chat</h3>
                     <p id="modal-online-sub" class="text-[10px] text-gray-400">Utenti connessi nel cloud</p>
                 </div>
                 <button onclick="playUiClick(); closeNetworkModal()" class="text-gray-400 hover:text-white font-bold text-sm p-1">✕</button>
@@ -242,7 +247,7 @@
     </div>
 
     <footer class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto text-[9px] sm:text-xs text-gray-500 p-1">
-        <p>Globo 3D con GPS, Chat e Audio UI Interattivo.</p>
+        <p>Globo 3D con GPS Reale, Chat Privata e Filtri 3D.</p>
         <p class="font-space">Audio UI Attivo</p>
     </footer>
 
@@ -269,7 +274,6 @@
         let audioInterval = null;
         let isAudioPlaying = false;
 
-        // Funzione per generare il beep sonoro UI al tocco
         window.playUiClick = function() {
             try {
                 if (!audioCtx) {
@@ -281,7 +285,7 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Nota La acuta pulita
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.08);
 
                 gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
@@ -291,9 +295,7 @@
                 gain.connect(audioCtx.destination);
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.09);
-            } catch(e) {
-                // Gestione silenziosa se il browser blocca l'audio prima di un'interazione utente
-            }
+            } catch(e) {}
         };
 
         window.toggleSpaceAudio = async function() {
@@ -501,16 +503,18 @@
         const bumpTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg');
         const specularTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg');
 
+        const earthMaterial = new THREE.MeshStandardMaterial({
+            map: earthTexture,
+            bumpMap: bumpTexture,
+            bumpScale: 0.04,
+            roughnessMap: specularTexture,
+            roughness: 0.5,
+            metalness: 0.1
+        });
+
         const earthMesh = new THREE.Mesh(
             new THREE.SphereGeometry(globeRadius, 64, 64),
-            new THREE.MeshStandardMaterial({
-                map: earthTexture,
-                bumpMap: bumpTexture,
-                bumpScale: 0.04,
-                roughnessMap: specularTexture,
-                roughness: 0.5,
-                metalness: 0.1
-            })
+            earthMaterial
         );
         earthGroup.add(earthMesh);
 
@@ -525,6 +529,42 @@
             })
         );
         earthGroup.add(cloudsMesh);
+
+        // --- SISTEMA DI FILTRI 3D PER IL GLOBO ---
+        let currentGlobeFilter = 0; // 0: Satellitare, 1: Cyber Wireframe, 2: Termico Matrix
+        window.toggleGlobeFilter = function() {
+            currentGlobeFilter = (currentGlobeFilter + 1) % 3;
+            const filterNameEl = document.getElementById('filter-name');
+
+            if (currentGlobeFilter === 0) {
+                earthMesh.material = new THREE.MeshStandardMaterial({
+                    map: earthTexture,
+                    bumpMap: bumpTexture,
+                    bumpScale: 0.04,
+                    roughnessMap: specularTexture,
+                    roughness: 0.5,
+                    metalness: 0.1
+                });
+                cloudsMesh.visible = true;
+                filterNameEl.innerText = "Satellitare";
+            } else if (currentGlobeFilter === 1) {
+                earthMesh.material = new THREE.MeshBasicMaterial({
+                    color: 0x00ffcc,
+                    wireframe: true
+                });
+                cloudsMesh.visible = false;
+                filterNameEl.innerText = "Cyber Wire";
+            } else if (currentGlobeFilter === 2) {
+                earthMesh.material = new THREE.MeshStandardMaterial({
+                    color: 0xff3366,
+                    roughness: 0.2,
+                    metalness: 0.8,
+                    emissive: 0x550022
+                });
+                cloudsMesh.visible = false;
+                filterNameEl.innerText = "Termico";
+            }
+        };
 
         const pinsGroup = new THREE.Group();
         earthGroup.add(pinsGroup);
@@ -594,7 +634,9 @@
         function animate() {
             requestAnimationFrame(animate);
             earthGroup.rotation.y += 0.0008;
-            cloudsMesh.rotation.y += 0.001;
+            if(cloudsMesh.visible) {
+                cloudsMesh.rotation.y += 0.001;
+            }
 
             const positions = starsGeometry.attributes.position.array;
             for (let i = 0; i < starsCount; i++) {
