@@ -78,38 +78,40 @@
         <div class="absolute w-2 h-2 rounded-full bg-indigo-400 animate-ping"></div>
     </div>
 
+    <!-- HEADER -->
     <header class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto p-1">
         <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-ping"></div>
-                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v6.5 CHAT PRO</span>
+                <span class="font-space tracking-widest text-[9px] sm:text-xs uppercase text-indigo-300 font-semibold">ANOMALIA // v6.6 AUDIO UI PRO</span>
             </div>
-            <div onclick="openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
+            <div onclick="playUiClick(); openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
                 <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
                 <span id="online-count-badge" class="text-[9px] font-space text-gray-300">1 Online</span>
             </div>
         </div>
 
         <div class="flex items-center space-x-2">
-            <button id="audio-toggle-btn" onclick="toggleSpaceAudio()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition">
+            <button id="audio-toggle-btn" onclick="playUiClick(); toggleSpaceAudio()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition">
                 <span>🔇 Audio</span>
             </button>
 
-            <div class="interactive-ui glass-panel px-3 py-1.5 rounded-full flex items-center space-x-2.5 cursor-pointer hover:border-indigo-500/50 transition" onclick="openProfileModal()">
+            <div class="interactive-ui glass-panel px-3 py-1.5 rounded-full flex items-center space-x-2.5 cursor-pointer hover:border-indigo-500/50 transition" onclick="playUiClick(); openProfileModal()">
                 <div class="w-8 h-8 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0">
                     <img id="user-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-full h-full object-cover">
                 </div>
                 <div class="text-left leading-tight truncate max-w-[100px] sm:max-w-xs">
                     <div id="username-display" class="text-[11px] font-space font-medium text-white truncate">@CosmicDrifter</div>
-                    <div class="text-[8px] text-emerald-400">Cloud & Chat Active</div>
+                    <div class="text-[8px] text-emerald-400">Audio UI Active</div>
                 </div>
             </div>
         </div>
     </header>
 
+    <!-- CENTRO INTERATTIVO -->
     <main class="ui-layer flex flex-col items-center justify-center flex-grow w-full max-w-sm mx-auto text-center p-2 relative">
         
-        <div id="action-trigger" class="interactive-ui cursor-pointer group">
+        <div id="action-trigger" class="interactive-ui cursor-pointer group" onclick="playUiClick()">
             <div class="glass-panel w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:border-indigo-500 transition duration-300 shadow-2xl">
                 <svg class="w-8 h-8 text-indigo-400 group-hover:scale-110 transition duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"></path>
@@ -118,10 +120,11 @@
             <span class="font-space text-[10px] sm:text-xs tracking-wider text-gray-300 group-hover:text-white transition">CATTURA ANOMALIA</span>
         </div>
 
+        <!-- Pannello Inserimento Anomalia -->
         <div id="input-panel" class="interactive-ui glass-panel w-full p-4 rounded-2xl hidden flex-col text-left space-y-3 max-h-[75vh] overflow-y-auto">
             <div class="flex justify-between items-center">
                 <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Nuovo Glitch GPS</h3>
-                <button id="close-panel" class="text-gray-400 hover:text-white font-bold text-sm p-1">✕</button>
+                <button id="close-panel" onclick="playUiClick()" class="text-gray-400 hover:text-white font-bold text-sm p-1">✕</button>
             </div>
 
             <textarea id="anomaly-text" rows="2" class="glass-input w-full p-2.5 rounded-xl text-white resize-none" placeholder="Descrivi l'anomalia..."></textarea>
@@ -136,17 +139,17 @@
                 <label class="text-[9px] text-indigo-300 uppercase font-space block">Visibilità Contenuto</label>
                 <div class="flex items-center space-x-4 text-[11px]">
                     <label class="flex items-center space-x-1.5 cursor-pointer">
-                        <input type="radio" name="visibility-type" value="friends" checked class="accent-indigo-500">
+                        <input type="radio" name="visibility-type" value="friends" checked class="accent-indigo-500" onclick="playUiClick()">
                         <span>Solo Amici</span>
                     </label>
                     <label class="flex items-center space-x-1.5 cursor-pointer">
-                        <input type="radio" name="visibility-type" value="public" class="accent-indigo-500">
+                        <input type="radio" name="visibility-type" value="public" class="accent-indigo-500" onclick="playUiClick()">
                         <span>Pubblico (Tutti)</span>
                     </label>
                 </div>
             </div>
 
-            <button id="submit-anomaly" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-space text-[11px] uppercase tracking-widest transition shadow-lg">
+            <button id="submit-anomaly" onclick="playUiClick()" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-space text-[11px] uppercase tracking-widest transition shadow-lg">
                 Trasmetti con GPS Reale
             </button>
         </div>
@@ -155,11 +158,13 @@
 
     </main>
 
+    <!-- MODALE ZOOM -->
     <div id="media-zoom-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex flex-col items-center justify-center p-2">
-        <button onclick="closeMediaZoom()" class="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full z-50 text-sm font-bold w-10 h-10 flex items-center justify-center">✕</button>
+        <button onclick="playUiClick(); closeMediaZoom()" class="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full z-50 text-sm font-bold w-10 h-10 flex items-center justify-center">✕</button>
         <div id="zoom-content-container" class="w-full h-full flex items-center justify-center p-2 overflow-auto"></div>
     </div>
 
+    <!-- MODALE NETWORK & AMICI -->
     <div id="network-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center">
@@ -167,7 +172,7 @@
                     <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Radar Network Reale</h3>
                     <p id="modal-online-sub" class="text-[10px] text-gray-400">Utenti connessi nel cloud</p>
                 </div>
-                <button onclick="closeNetworkModal()" class="text-gray-400 hover:text-white font-bold text-sm p-1">✕</button>
+                <button onclick="playUiClick(); closeNetworkModal()" class="text-gray-400 hover:text-white font-bold text-sm p-1">✕</button>
             </div>
 
             <div class="relative">
@@ -177,12 +182,14 @@
 
             <div id="users-list-container" class="space-y-2 overflow-y-auto flex-grow max-h-60 pr-1 custom-scrollbar"></div>
 
-            <button onclick="closeNetworkModal()" class="w-full py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-gray-300 transition">Chiudi</button>
+            <button onclick="playUiClick(); closeNetworkModal()" class="w-full py-2 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-gray-300 transition">Chiudi</button>
         </div>
     </div>
 
+    <!-- MODALE CHAT PRIVATA 1-A-1 -->
     <div id="chat-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-3">
         <div class="glass-panel max-w-md w-full h-[80vh] rounded-2xl flex flex-col overflow-hidden border border-indigo-500/40">
+            <!-- Header Chat -->
             <div class="p-3 bg-white/5 border-b border-white/10 flex justify-between items-center">
                 <div class="flex items-center space-x-2.5">
                     <div class="w-8 h-8 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0">
@@ -193,18 +200,21 @@
                         <div class="text-[8px] text-emerald-400">Chat Privata Sicura</div>
                     </div>
                 </div>
-                <button onclick="closeChatModal()" class="text-gray-400 hover:text-white font-bold text-sm p-1.5 bg-white/5 rounded-full w-8 h-8 flex items-center justify-center">✕</button>
+                <button onclick="playUiClick(); closeChatModal()" class="text-gray-400 hover:text-white font-bold text-sm p-1.5 bg-white/5 rounded-full w-8 h-8 flex items-center justify-center">✕</button>
             </div>
 
+            <!-- Messaggi Container -->
             <div id="chat-messages-container" class="flex-grow p-3 overflow-y-auto space-y-2 custom-scrollbar flex flex-col"></div>
 
+            <!-- Input Box Chat -->
             <div class="p-3 bg-white/5 border-t border-white/10 flex items-center space-x-2">
                 <input type="text" id="chat-input-text" onkeypress="handleChatKeyPress(event)" placeholder="Scrivi un messaggio..." class="glass-input flex-grow py-2 px-3 rounded-xl text-white text-xs">
-                <button onclick="sendChatMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-space uppercase transition shadow-lg">Invia</button>
+                <button onclick="playUiClick(); sendChatMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-space uppercase transition shadow-lg">Invia</button>
             </div>
         </div>
     </div>
 
+    <!-- MODALE PROFILO -->
     <div id="profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-3">
             <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">Modifica Profilo</h3>
@@ -213,7 +223,7 @@
                 <div class="w-16 h-16 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/50 shadow-lg">
                     <img id="modal-avatar-preview-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-full h-full object-cover">
                 </div>
-                <label class="text-[10px] text-indigo-400 font-space uppercase cursor-pointer bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 transition">
+                <label class="text-[10px] text-indigo-400 font-space uppercase cursor-pointer bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 transition" onclick="playUiClick()">
                     📁 Cambia Foto Profilo
                     <input type="file" id="profile-file-input" accept="image/*" class="hidden" onchange="previewProfileImage(this)">
                 </label>
@@ -225,15 +235,15 @@
             </div>
 
             <div class="flex space-x-2 pt-2">
-                <button onclick="saveProfile()" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-[11px] font-space uppercase tracking-wider text-white transition">Salva Profilo</button>
-                <button onclick="closeProfileModal()" class="py-2 px-4 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-gray-300 transition">Chiudi</button>
+                <button onclick="playUiClick(); saveProfile()" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-[11px] font-space uppercase tracking-wider text-white transition">Salva Profilo</button>
+                <button onclick="playUiClick(); closeProfileModal()" class="py-2 px-4 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-gray-300 transition">Chiudi</button>
             </div>
         </div>
     </div>
 
     <footer class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto text-[9px] sm:text-xs text-gray-500 p-1">
-        <p>Globo 3D interattivo con geolocalizzazione GPS e Chat.</p>
-        <p class="font-space">Cloud Attivo</p>
+        <p>Globo 3D con GPS, Chat e Audio UI Interattivo.</p>
+        <p class="font-space">Audio UI Attivo</p>
     </footer>
 
     <script type="importmap">
@@ -258,6 +268,33 @@
         let audioCtx = null;
         let audioInterval = null;
         let isAudioPlaying = false;
+
+        // Funzione per generare il beep sonoro UI al tocco
+        window.playUiClick = function() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // Nota La acuta pulita
+                osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.08);
+
+                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.09);
+            } catch(e) {
+                // Gestione silenziosa se il browser blocca l'audio prima di un'interazione utente
+            }
+        };
 
         window.toggleSpaceAudio = async function() {
             const btn = document.getElementById('audio-toggle-btn');
@@ -414,6 +451,7 @@
         }
 
         window.dismissItem = function(itemId) {
+            playUiClick();
             let dismissed = getDismissedItems();
             if(!dismissed.includes(itemId)) {
                 dismissed.push(itemId);
@@ -601,8 +639,8 @@
                 <div class="text-[9px] font-space text-emerald-400 uppercase tracking-widest pr-6">Richiesta d'Amicizia</div>
                 <p class="text-[11px] text-white"><b>${fromName}</b> vuole aggiungerti agli amici.</p>
                 <div class="flex space-x-2 pt-1">
-                    <button onclick="acceptFriendRequest('${reqId}', '${notifId}')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-[10px] font-space text-white uppercase cursor-pointer">Accetta</button>
-                    <button onclick="rejectFriendRequest('${reqId}', '${notifId}')" class="py-1.5 px-3 bg-rose-600/85 hover:bg-rose-600 rounded-lg text-[10px] font-space text-white uppercase cursor-pointer">Rifiuta</button>
+                    <button onclick="playUiClick(); acceptFriendRequest('${reqId}', '${notifId}')" class="flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-[10px] font-space text-white uppercase cursor-pointer">Accetta</button>
+                    <button onclick="playUiClick(); rejectFriendRequest('${reqId}', '${notifId}')" class="py-1.5 px-3 bg-rose-600/85 hover:bg-rose-600 rounded-lg text-[10px] font-space text-white uppercase cursor-pointer">Rifiuta</button>
                 </div>
             `;
             liveNotifsContainer.prepend(div);
@@ -670,13 +708,13 @@
                 data.mediaUrl.forEach(url => {
                     if(url.startsWith('data:video') || url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
                         itemsList += `
-                            <div class="flex-shrink-0 w-36 h-28 bg-black/50 rounded-lg overflow-hidden border border-indigo-500/30 relative cursor-pointer group" onclick="openMediaZoom('video', '${url}')">
+                            <div class="flex-shrink-0 w-36 h-28 bg-black/50 rounded-lg overflow-hidden border border-indigo-500/30 relative cursor-pointer group" onclick="playUiClick(); openMediaZoom('video', '${url}')">
                                 <video src="${url}" class="w-full h-full object-cover"></video>
                                 <div class="absolute inset-0 bg-black/30 flex items-center justify-center"><svg class="w-8 h-8 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
                             </div>`;
                     } else {
                         itemsList += `
-                            <div class="flex-shrink-0 w-36 h-28 bg-black/50 rounded-lg overflow-hidden border border-indigo-500/30 relative cursor-pointer group" onclick="openMediaZoom('image', '${url}')">
+                            <div class="flex-shrink-0 w-36 h-28 bg-black/50 rounded-lg overflow-hidden border border-indigo-500/30 relative cursor-pointer group" onclick="playUiClick(); openMediaZoom('image', '${url}')">
                                 <img src="${url}" class="w-full h-full object-cover">
                             </div>`;
                     }
@@ -738,19 +776,19 @@
                     if (isAlreadyFriend) {
                         actionBtnHtml = `
                             <div class="flex space-x-1.5">
-                                <button onclick="openChatModal('${userData.id}', '${userData.username}', '${userData.avatar || ''}')" class="px-2.5 py-1.5 rounded-lg text-[9px] font-space uppercase bg-indigo-600 hover:bg-indigo-500 text-white transition cursor-pointer">💬 Chat</button>
-                                <button onclick="removeFriend('${userData.id}', '${userData.username}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/85 hover:bg-rose-600 text-white transition cursor-pointer">-</button>
+                                <button onclick="playUiClick(); openChatModal('${userData.id}', '${userData.username}', '${userData.avatar || ''}')" class="px-2.5 py-1.5 rounded-lg text-[9px] font-space uppercase bg-indigo-600 hover:bg-indigo-500 text-white transition cursor-pointer">💬 Chat</button>
+                                <button onclick="playUiClick(); removeFriend('${userData.id}', '${userData.username}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/85 hover:bg-rose-600 text-white transition cursor-pointer">-</button>
                             </div>`;
                     } else if (pendingInfo && pendingInfo.type === 'incoming') {
                         actionBtnHtml = `
                             <div class="flex space-x-1">
-                                <button onclick="acceptFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-emerald-600 hover:bg-emerald-500 text-white transition cursor-pointer">Accetta</button>
-                                <button onclick="rejectFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/85 hover:bg-rose-600 text-white transition cursor-pointer">Rifiuta</button>
+                                <button onclick="playUiClick(); acceptFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-emerald-600 hover:bg-emerald-500 text-white transition cursor-pointer">Accetta</button>
+                                <button onclick="playUiClick(); rejectFriendRequest('${pendingInfo.reqId}')" class="px-2 py-1.5 rounded-lg text-[9px] font-space uppercase bg-rose-600/85 hover:bg-rose-600 text-white transition cursor-pointer">Rifiuta</button>
                             </div>`;
                     } else if (pendingInfo && pendingInfo.type === 'outgoing') {
                         actionBtnHtml = `<span class="text-[9px] text-amber-400 font-space uppercase px-2 py-1">In attesa</span>`;
                     } else {
-                        actionBtnHtml = `<button onclick="sendRealRequest('${userData.id}', '${userData.username}')" class="px-3 py-1.5 rounded-lg text-[10px] font-space uppercase bg-indigo-600 hover:bg-indigo-500 text-white transition cursor-pointer">+ Amicizia</button>`;
+                        actionBtnHtml = `<button onclick="playUiClick(); sendRealRequest('${userData.id}', '${userData.username}')" class="px-3 py-1.5 rounded-lg text-[10px] font-space uppercase bg-indigo-600 hover:bg-indigo-500 text-white transition cursor-pointer">+ Amicizia</button>`;
                     }
 
                     const avatarSrc = userData.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
@@ -881,6 +919,7 @@
 
         window.handleChatKeyPress = function(e) {
             if(e.key === 'Enter') {
+                playUiClick();
                 sendChatMessage();
             }
         }
