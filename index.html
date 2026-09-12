@@ -51,9 +51,10 @@
         }
         .ui-layer { position: relative; z-index: 10; pointer-events: none; }
         .interactive-ui { pointer-events: auto; }
-        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 4px; }
+        
+        .custom-scrollbar::-webkit-scrollbar { height: 3px; width: 3px; display: block; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.6); border-radius: 4px; }
 
         .radar-hud {
             position: absolute; bottom: 20px; right: 20px; width: 90px; height: 90px;
@@ -79,38 +80,40 @@
     </div>
 
     <!-- HEADER -->
-    <header class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto p-1 gap-1">
-        <div class="flex items-center space-x-1.5 flex-shrink-0">
-            <div onclick="playUiClick(); openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
+    <header class="ui-layer flex justify-between items-center w-full max-w-7xl mx-auto p-1 gap-1.5">
+        <!-- Badge Online a sinistra -->
+        <div class="flex items-center flex-shrink-0">
+            <div onclick="playUiClick(); openNetworkModal()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition">
                 <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
                 <span id="online-count-badge" class="text-[9px] font-space text-gray-300">1 Online</span>
             </div>
         </div>
 
-        <div class="flex items-center space-x-1 overflow-x-auto max-w-[62vw] sm:max-w-full custom-scrollbar pb-1 flex-grow justify-end">
-            <!-- Pulsante ISS Tracker -->
-            <button id="iss-toggle-btn" onclick="playUiClick(); toggleIssTracker()" class="interactive-ui glass-panel px-2 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
-                <span>🛰️ <span id="iss-status-text">ISS</span></span>
+        <!-- LISTA PULSANTI CENTRALE A SCORRIMENTO FLUIDO (TOUCH & MOUSE) -->
+        <div class="flex items-center space-x-1.5 overflow-x-auto custom-scrollbar flex-grow py-1 px-1 justify-start sm:justify-center touch-pan-x">
+            <!-- Pulsante ISS Tracker (Icona Satellitare Ripristinata) -->
+            <button id="iss-toggle-btn" onclick="playUiClick(); toggleIssTracker()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
+                <span>🛰️ <span id="iss-status-text">ISS Satellitare</span></span>
             </button>
 
             <!-- Pulsante Sonar / Radar di Prossimità -->
-            <button id="sonar-toggle-btn" onclick="playUiClick(); toggleSonarEffect()" class="interactive-ui glass-panel px-2 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
+            <button id="sonar-toggle-btn" onclick="playUiClick(); toggleSonarEffect()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
                 <span>📡 <span id="sonar-status-text">Sonar</span></span>
             </button>
 
             <!-- Pulsante Filtro 3D Globo -->
-            <button id="globe-filter-btn" onclick="playUiClick(); toggleGlobeFilter()" class="interactive-ui glass-panel px-2 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
+            <button id="globe-filter-btn" onclick="playUiClick(); toggleGlobeFilter()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
                 <span>🎨 <span id="filter-name">Sat</span></span>
             </button>
 
             <!-- Pulsante Audio -->
-            <button id="audio-toggle-btn" onclick="playUiClick(); toggleSpaceAudio()" class="interactive-ui glass-panel px-2 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
+            <button id="audio-toggle-btn" onclick="playUiClick(); toggleSpaceAudio()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
                 <span>🔇 Audio</span>
             </button>
         </div>
 
-        <!-- Profilo Utente -->
-        <div class="interactive-ui glass-panel px-2 py-1 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition flex-shrink-0 max-w-[125px]" onclick="playUiClick(); openProfileModal()">
+        <!-- Profilo Utente a destra -->
+        <div class="interactive-ui glass-panel px-2 py-1.5 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition flex-shrink-0 max-w-[125px]" onclick="playUiClick(); openProfileModal()">
             <div class="w-6 h-6 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/40 flex-shrink-0">
                 <img id="user-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-full h-full object-cover">
             </div>
@@ -655,7 +658,7 @@
                 fetchAndRenderIss();
                 issInterval = setInterval(fetchAndRenderIss, 10000);
             } else {
-                btnText.innerText = "ISS";
+                btnText.innerText = "ISS Satellitare";
                 btn.classList.remove('border-orange-500', 'text-white');
                 if (issInterval) clearInterval(issInterval);
                 if (issMesh) {
@@ -773,7 +776,6 @@
                 cloudsMesh.rotation.y += 0.001;
             }
 
-            // Animazione Sonar Rings
             for (let i = sonarRings.length - 1; i >= 0; i--) {
                 let s = sonarRings[i];
                 s.scale += 0.015;
@@ -1283,3 +1285,5 @@
             });
         });
     </script>
+</body>
+</html>
