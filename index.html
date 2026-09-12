@@ -577,7 +577,7 @@
             }
         };
 
-        // --- RADAR DI PROSSIMITÀ (SONAR EFFECT) ---
+        // --- RADAR DI PROSSIMITÀ (SONAR DINAMICO) ---
         let isSonarActive = false;
         let sonarRings = [];
         let sonarInterval = null;
@@ -590,12 +590,11 @@
             if (isSonarActive) {
                 statusText.innerText = "Sonar:ON";
                 btn.classList.add('border-indigo-500', 'text-white');
-                triggerSonarPulse();
-                sonarInterval = setInterval(triggerSonarPulse, 2000);
+                runDynamicSonar();
             } else {
                 statusText.innerText = "Sonar";
                 btn.classList.remove('border-indigo-500', 'text-white');
-                if (sonarInterval) clearInterval(sonarInterval);
+                if (sonarInterval) clearTimeout(sonarInterval);
                 sonarRings.forEach(ring => {
                     earthGroup.remove(ring);
                     ring.geometry.dispose();
@@ -605,11 +604,34 @@
             }
         };
 
-        function triggerSonarPulse() {
-            playSonarPing();
+        function calculateMinDistanceToTargets() {
+            let minDistanceKm = 5000; 
+            if(pinsGroup.children.length > 0 && camera) {
+                pinsGroup.children.forEach(pin => {
+                    if(pin === issMesh) return;
+                    const dist = camera.position.distanceTo(pin.position);
+                    if(dist < minDistanceKm) minDistanceKm = dist;
+                });
+            }
+            return minDistanceKm;
+        }
+
+        function runDynamicSonar() {
+            if (!isSonarActive) return;
+
+            const minDistance = calculateMinDistanceToTargets();
+            let dynamicInterval = Math.max(400, Math.min(2000, minDistance * 400));
+
+            triggerSonarPulse(minDistance);
+
+            sonarInterval = setTimeout(runDynamicSonar, dynamicInterval);
+        }
+
+        function triggerSonarPulse(distanceFactor = 2.0) {
+            playSonarPing(distanceFactor);
             const ringGeo = new THREE.RingGeometry(globeRadius * 0.95, globeRadius * 1.0, 64);
             const ringMat = new THREE.MeshBasicMaterial({
-                color: 0x00ffcc,
+                color: distanceFactor < 6.0 ? 0xff3366 : 0x00ffcc,
                 side: THREE.DoubleSide,
                 transparent: true,
                 opacity: 0.8,
@@ -622,23 +644,27 @@
             sonarRings.push({ mesh: ringMesh, scale: 1.0, opacity: 0.8 });
         }
 
-        function playSonarPing() {
+        function playSonarPing(distanceFactor = 2.0) {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
+                
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
+                
+                let startFreq = Math.min(1400, Math.max(600, 1600 - (distanceFactor * 150)));
+                
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.35);
+                osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(startFreq * 0.3, audioCtx.currentTime + 0.25);
 
                 gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
 
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.45);
+                osc.stop(audioCtx.currentTime + 0.35);
             } catch(e) {}
         }
 
