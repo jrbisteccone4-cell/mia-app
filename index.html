@@ -769,9 +769,14 @@
             if(!isRecording) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
+                    const options = { mimeType: 'audio/webm;codecs=opus' };
+                    mediaRecorder = new MediaRecorder(stream, MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? options : {});
                     audioChunks = [];
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data.size > 0) audioChunks.push(e.data);
+                    };
+                    
                     mediaRecorder.onstop = async () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         const reader = new FileReader();
@@ -785,15 +790,19 @@
                             }
                         };
                         reader.readAsDataURL(audioBlob);
+                        stream.getTracks().forEach(track => track.stop());
                     };
+                    
                     mediaRecorder.start();
                     isRecording = true;
                     micBtn.classList.add('bg-rose-600', 'text-white', 'animate-pulse');
                 } catch(e) {
-                    alert("Impossibile accedere al microfono.");
+                    alert("Impossibile accedere al microfono. Controlla i permessi del browser.");
                 }
             } else {
-                if(mediaRecorder) mediaRecorder.stop();
+                if(mediaRecorder && isRecording) {
+                    mediaRecorder.stop();
+                }
                 isRecording = false;
                 micBtn.classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
             }
