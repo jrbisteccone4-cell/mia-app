@@ -90,8 +90,8 @@
         </div>
 
         <!-- LISTA PULSANTI CENTRALE A SCORRIMENTO FLUIDO (TOUCH & MOUSE) -->
-        <div class="flex items-center space-x-1.5 overflow-x-auto custom-scrollbar flex-grow py-1 px-1 justify-start sm:justify-center touch-pan-x">
-            <!-- Pulsante ISS Tracker (Icona Satellitare Ripristinata) -->
+        <div class="flex items-center space-x-1.5 overflow-x-auto custom-scrollbar flex-grow py-1 px-1 justify-start sm:justify-center" style="overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x;">
+            <!-- Pulsante ISS Tracker -->
             <button id="iss-toggle-btn" onclick="playUiClick(); toggleIssTracker()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
                 <span>🛰️ <span id="iss-status-text">ISS Satellitare</span></span>
             </button>
