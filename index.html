@@ -106,11 +106,6 @@
             <button id="audio-toggle-btn" onclick="playUiClick(); toggleSpaceAudio()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-gray-400 hover:text-white transition whitespace-nowrap flex-shrink-0">
                 <span>🔇 Audio</span>
             </button>
-
-            <!-- Pulsante per aprire il Programma Generale con il Modulo Segnalazioni -->
-            <button onclick="playUiClick(); openProgramModal()" class="interactive-ui glass-panel px-2.5 py-1.5 rounded-full flex items-center space-x-1 text-[10px] text-indigo-300 hover:text-white transition whitespace-nowrap flex-shrink-0 border border-indigo-500/40">
-                <span>📋 Programma</span>
-            </button>
         </div>
 
         <div class="interactive-ui glass-panel px-2 py-1.5 rounded-full flex items-center space-x-1.5 cursor-pointer hover:border-indigo-500/50 transition flex-shrink-0 max-w-[125px]" onclick="playUiClick(); openProfileModal()">
@@ -173,75 +168,10 @@
 
     </main>
 
-    <!-- MODALE PROGRAMMA GENERALE & ARCHIVIO SEGNALAZIONI -->
-    <div id="program-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-3">
-        <div class="glass-panel max-w-2xl w-full h-[85vh] rounded-2xl flex flex-col overflow-hidden border border-indigo-500/40">
-            <div class="p-3 bg-white/5 border-b border-white/10 flex justify-between items-center flex-shrink-0">
-                <h3 class="font-space text-xs text-indigo-300 uppercase tracking-wider">📋 Programma Generale - Anomalia</h3>
-                <button onclick="playUiClick(); closeProgramModal()" class="text-gray-400 hover:text-white font-bold text-sm p-1.5 bg-white/5 rounded-full w-8 h-8 flex items-center justify-center">✕</button>
-            </div>
-            <div class="flex-grow p-5 overflow-y-auto custom-scrollbar text-xs space-y-4 text-gray-300">
-                <p><em>Stato del documento: <span class="text-rose-500 font-bold">CLASSIFICATO - SOLO PER PERSONALE AUTORIZZATO</span></em></p>
-
-                <h2 class="font-space text-white border-b border-white/10 pb-1 text-sm">1. Visione d'Insieme e Obiettivi</h2>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li><strong>Genere</strong>: Narrativa interattiva, mistero, analog horror e ARG (Alternate Reality Game).</li>
-                    <li><strong>Target</strong>: Appassionati di misteri, puzzle digitali e narrazioni psicologiche immersive.</li>
-                    <li><strong>Obiettivo</strong>: Offrire un'esperienza che sfuma il confine tra realtà e finzione, sfruttando l'interfaccia dello smartphone come un terminale di un ente di ricerca segreto.</li>
-                </ul>
-
-                <h2 class="font-space text-white border-b border-white/10 pb-1 text-sm">2. Core Features e Architettura Tecnica</h2>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li><strong>Narrativa Ramificata</strong>: Bivi decisionali in tempo reale che modificano la trama in base alle scelte dell'utente.</li>
-                    <li><strong>Comparto Audio Dinamico</strong>: Paesaggi sonori che evolvono con la tensione della scena e l'orario di utilizzo.</li>
-                    <li><strong>Effetti Visivi Procedurali</strong>: Glitch visivi, distorsioni cromatiche e interfaccia in stile terminale CRT/VHS.</li>
-                    <li><strong>Integrazione Sensoriale (Argus)</strong>: Sfruttamento di microfono, sensori di movimento e luminosità per reazioni ambientali inaspettate.</li>
-                    <li><strong>Feedback Aptico</strong>: Vibrazioni millimetriche per simulare anomalie fisiche e interferenze digitali.</li>
-                </ul>
-
-                <h2 class="font-space text-white border-b border-white/10 pb-1 text-sm">3. Modulo: Archivio "Reclamo/Segnalazione" Utente (Ente di Ricerca / Dipartimento Segreto)</h2>
-                <h3 class="font-space text-indigo-300">3.1 Obiettivo della Sezione</h3>
-                <p>Creare uno spazio di community immersivo camuffato da portale burocratico o scientifico riservato, in cui i giocatori possono inviare prove, registrazioni o teorie relative alle anomalie incontrate, alimentando un forte senso di indagine collettiva e mistero condiviso.</p>
-
-                <h3 class="font-space text-indigo-300">3.2 Specifiche di Design e Interfaccia (UI/UX)</h3>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li><strong>Stile Visivo</strong>: Design austero, ispirato ai terminali governativi dismessi o ai database di agenzie di ricerca segrete (caratteri monospazio, loghi ministeriali fittizi, timbri digitali "CLASSIFICATO" o "CONFIDENZIALE").</li>
-                    <li><strong>Palette Colori</strong>: Toni desaturati, sfondi scuri con griglia stile schermo CRT o carta da archivio ingiallita digitale.</li>
-                    <li><strong>Toni di Voce</strong>: Messaggi di errore formali, freddi e burocratici che rispondono in modo criptico alle segnalazioni degli utenti.</li>
-                </ul>
-
-                <h3 class="font-space text-indigo-300">3.3 Funzionalità Principali del Modulo</h3>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li><strong>Form di Invio "Protocollo Segnalazione"</strong>:
-                        <ul class="list-circle pl-5 mt-1 space-y-1">
-                            <li>Campi di testo per descrivere l'anomalia.</li>
-                            <li>Possibilità di allegare file fittizi (immagini distorte, brevi clip audio, coordinate GPS).</li>
-                        </ul>
-                    </li>
-                    <li><strong>Registro Pubblico delle Segnalazioni (Feed Community)</strong>:
-                        <ul class="list-circle pl-5 mt-1 space-y-1">
-                            <li>Una bacheca filtrabile dove compaiono le segnalazioni approvate (o filtrate da un algoritmo fittizio) inviate dagli altri giocatori.</li>
-                            <li>Sistema di votazione o "validazione" delle teorie da parte della community (indicatori di veridicità o livello di minaccia).</li>
-                        </ul>
-                    </li>
-                    <li><strong>Risposte Automatiche Dinamiche</strong>:
-                        <ul class="list-circle pl-5 mt-1 space-y-1">
-                            <li>L'app restituisce un codice di protocollo univoco e, in casi rari o legati a tappe chiave della trama, una risposta automatica personalizzata che sblocca indizi segreti per il giocatore.</li>
-                        </ul>
-                    </li>
-                </ul>
-
-                <h3 class="font-space text-indigo-300">3.4 Integrazione con la Trama Globale</h3>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>Le segnalazioni più votate o rilevanti della community possono influenzare dinamicamente i piccoli aggiornamenti di lore dell'app o sbloccare capitoli successivi della narrativa globale.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
     <!-- MODALE SQUADRA & CHAT GRUPPO CON FOTO E VOCALI -->
     <div id="squad-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-3">
         <div class="glass-panel max-w-md w-full h-[85vh] rounded-2xl flex flex-col overflow-hidden border border-emerald-500/40">
+            <!-- Header Squadra -->
             <div class="p-3 bg-white/5 border-b border-white/10 flex justify-between items-center flex-shrink-0">
                 <div>
                     <h3 class="font-space text-xs text-emerald-300 uppercase tracking-wider">🛡️ Squadra Esploratori</h3>
@@ -250,7 +180,9 @@
                 <button onclick="playUiClick(); closeSquadModal()" class="text-gray-400 hover:text-white font-bold text-sm p-1.5 bg-white/5 rounded-full w-8 h-8 flex items-center justify-center">✕</button>
             </div>
 
+            <!-- Corpo Gestione Squadra o Chat -->
             <div id="squad-body-container" class="flex-grow flex flex-col overflow-hidden">
+                <!-- Se non si è in squadra -->
                 <div id="squad-setup-view" class="p-4 space-y-4 overflow-y-auto flex-grow custom-scrollbar">
                     <div class="bg-white/5 p-3 rounded-xl border border-white/10 space-y-2">
                         <h4 class="text-xs font-space text-white">Crea una nuova Squadra</h4>
@@ -264,17 +196,23 @@
                     </div>
                 </div>
 
+                <!-- Se si è in squadra: Mini Radar e Chat Gruppo -->
                 <div id="squad-active-view" class="hidden flex-grow flex flex-col overflow-hidden">
+                    <!-- Sotto-radar membri squadra -->
                     <div class="p-3 bg-black/40 border-b border-white/10 flex-shrink-0 space-y-2">
                         <div class="flex justify-between items-center text-[10px] font-space text-emerald-300">
                             <span id="active-squad-title">Squadra: --</span>
                             <button onclick="playUiClick(); leaveSquad()" class="text-rose-400 hover:underline text-[9px]">Abbandona</button>
                         </div>
-                        <div id="squad-members-radar-list" class="flex space-x-2 overflow-x-auto custom-scrollbar py-1"></div>
+                        <div id="squad-members-radar-list" class="flex space-x-2 overflow-x-auto custom-scrollbar py-1">
+                            <!-- Membri squadra con distanze -->
+                        </div>
                     </div>
 
+                    <!-- Chat Gruppo Messaggi -->
                     <div id="squad-chat-messages" class="flex-grow p-3 overflow-y-auto space-y-2 custom-scrollbar flex flex-col"></div>
 
+                    <!-- Input Chat Gruppo (Testo, Foto, Vocale) -->
                     <div class="p-2.5 bg-white/5 border-t border-white/10 flex items-center space-x-2 flex-shrink-0">
                         <label class="cursor-pointer text-gray-300 hover:text-white p-1.5 bg-white/5 rounded-lg flex-shrink-0" title="Invia Foto">
                             📷
@@ -289,7 +227,7 @@
         </div>
     </div>
 
-    <!-- MODALE SONAR RADAR & LISTA UTENTI ATTIVI -->
+    <!-- MODALE SONAR RADAR & LISTA UTENTI ATTIVI (PRIVACY RESPECTED) -->
     <div id="sonar-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
         <div class="glass-panel max-w-sm w-full p-5 rounded-2xl space-y-4 max-h-[85vh] flex flex-col border border-cyan-500/40">
             <div class="flex justify-between items-center">
@@ -339,7 +277,7 @@
         </div>
     </div>
 
-    <!-- MODALE CHAT PRIVATA 1-A-1 -->
+    <!-- MODALE CHAT PRIVATA 1-A-1 CON FOTO E VOCALI -->
     <div id="chat-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-3">
         <div class="glass-panel max-w-md w-full h-[80vh] rounded-2xl flex flex-col overflow-hidden border border-indigo-500/40">
             <div class="p-3 bg-white/5 border-b border-white/10 flex justify-between items-center">
@@ -482,14 +420,6 @@
                 osc.start();
                 osc.stop(audioCtx.currentTime + 4.0);
             });
-        }
-
-        // Funzioni per la gestione del Modale Programma Generale
-        window.openProgramModal = function() {
-            document.getElementById('program-modal').classList.remove('hidden');
-        }
-        window.closeProgramModal = function() {
-            document.getElementById('program-modal').classList.add('hidden');
         }
 
         const firebaseConfig = {
@@ -689,6 +619,7 @@
             }
         };
 
+        // --- GESTIONE REGISTRAZIONE VOCALE UNIFICATA (SQUADRA & PRIVATA) ---
         let squadUnsubscribe = null;
         let mediaRecorder = null;
         let audioChunks = [];
@@ -746,6 +677,7 @@
             }
         }
 
+        // --- GESTIONE SQUADRE & CHAT GRUPPO ---
         window.openSquadModal = function() {
             document.getElementById('squad-modal').classList.remove('hidden');
             checkSquadStatus();
@@ -890,6 +822,7 @@
             }
         }
 
+        // --- SISTEMA SONAR E DISTANZE KM ---
         let sonarRings = [];
         let sonarInterval = null;
 
@@ -1028,6 +961,7 @@
             } catch(e) {}
         }
 
+        // --- TRACKER ISS ---
         let isIssActive = false;
         let issMesh = null;
         let issInterval = null;
